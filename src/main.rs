@@ -1,6 +1,7 @@
 mod ui;
 mod app;
 mod sandsim;
+mod color;
 
 use app::App;
 

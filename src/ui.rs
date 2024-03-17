@@ -3,16 +3,15 @@ extern crate sdl2;
 use sdl2::event::Event;
 use sdl2::gfx::framerate::FPSManager;
 use sdl2::keyboard::Keycode;
-use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
-use sdl2::EventPump; // , Sdl, VideoSubsystem};
+use sdl2::EventPump; //, Sdl}; //, VideoSubsystem};
 
 pub struct Ui {
     pub canvas: Canvas<Window>,
     // sdl_context: Sdl,
     // video_subsystem: VideoSubsystem,
-    event_pump: EventPump,
+    pub event_pump: EventPump,
     fps_manager: FPSManager,
     fps: f64,
     running: bool,

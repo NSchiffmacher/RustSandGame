@@ -1,8 +1,8 @@
 use crate::ui::Ui;
-use crate::sandsim::grid::Grid;
+use crate::sandsim::grid::{Grid, PIXEL_SIZE, SAND_CELL_COLOR};
+use crate::color;
 
 use sdl2::event::Event;
-use rand::Rng;
 
 pub struct App {
     width: u32,
@@ -17,7 +17,7 @@ impl App {
         let width = 800;
         let height = 800;
         let title = "Sandgame";
-        let fps_target = 60; //TODO Create our own FPS manager because the one from SDL is not working
+        let fps_target = 200; //TODO Create our own FPS manager because the one from SDL is not working
 
         let ui = Ui::new(width, height, title, fps_target); 
         App {
@@ -44,16 +44,23 @@ impl App {
     }
     
     pub fn update(&mut self) {
-        // let mut rng = rand::thread_rng();
-        // let z = rng.gen_range(0..5);
-        // if z == 0 {
-        //     let x = rng.gen_range(0..self.width);
-        //     let y = rng.gen_range(0..self.height);
-        //     let r = rng.gen_range(0..255);
-        //     let g = rng.gen_range(0..255);
-        //     let b = rng.gen_range(0..255);
-        //     self.grid.set(x, y, Some((r, g, b, 255).into()));
-        // }
+        // Inputs
+        let mouse_state = self.ui.event_pump.mouse_state();
+        if mouse_state.left() {
+            let x = mouse_state.x() as u32;
+            let y = mouse_state.y() as u32;
+
+            let grid_x = x / PIXEL_SIZE;
+            let grid_y = y / PIXEL_SIZE;
+
+            let color = color::vary_color(SAND_CELL_COLOR, 10);
+
+            if self.grid.is_empty(grid_x, grid_y) {
+                self.grid.set(grid_x, grid_y, Some(color));
+            }
+        }
+
+        // Logic
     }
 
     pub fn draw(&mut self) {
@@ -62,7 +69,6 @@ impl App {
 
     pub fn handle_event(&mut self, event: Event) {
         match event {
-            // Event::MouseButtonDown { timestamp, window_id, which, mouse_btn, clicks, x, y }
             _ => (),
         }
     }

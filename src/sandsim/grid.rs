@@ -1,12 +1,13 @@
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::pixels::Color;
-use sdl2::gfx::primitives::DrawRenderer; 
 
 use std::collections::HashSet;
 
-type Cell = Option<Color>;
-const EMPTY_CELL_COLOR: Color = Color { r: 0, g: 0, b: 0, a: 255 };
+pub type Cell = Option<Color>;
+pub const EMPTY_CELL_COLOR: Color = Color { r: 0, g: 0, b: 0, a: 255 };
+pub const SAND_CELL_COLOR: Color = Color { r: 246, g: 215, b: 176, a: 255 };
+pub const PIXEL_SIZE: u32 = 10;
 
 pub struct Grid {
     pub width: u32,
@@ -17,7 +18,9 @@ pub struct Grid {
 
 #[allow(dead_code)]
 impl Grid {
-    pub fn new(width: u32, height: u32) -> Grid {
+    pub fn new(window_width: u32, window_height: u32) -> Grid {
+        let width = window_width / PIXEL_SIZE;
+        let height = window_height / PIXEL_SIZE;
         let cells = vec![None; (width * height) as usize];
         Grid {
             width,
@@ -29,8 +32,8 @@ impl Grid {
 
     pub fn clear(&mut self) {
         self.cells = vec![None; (self.width * self.height) as usize];
-        for y in 0..self.height {
-            for x in 0..self.width {
+        for y in 0..self.height/PIXEL_SIZE {
+            for x in 0..self.width/PIXEL_SIZE {
                 self.cells_to_draw.insert((x, y));
             }
         }
@@ -62,7 +65,9 @@ impl Grid {
     pub fn draw(&mut self, canvas: &mut Canvas<Window>) {
         for (x, y) in &self.cells_to_draw {
             let color = self.get(*x, *y).unwrap_or(EMPTY_CELL_COLOR);
-            canvas.pixel(*x as i16, *y as i16, color).unwrap();
+            let rect = sdl2::rect::Rect::new((*x * PIXEL_SIZE) as i32, (*y * PIXEL_SIZE) as i32, PIXEL_SIZE, PIXEL_SIZE);
+            canvas.set_draw_color(color);
+            canvas.fill_rect(rect).unwrap();
         }
         self.cells_to_draw.clear();
     }
