@@ -3,6 +3,7 @@ extern crate sdl2;
 use sdl2::event::Event;
 use sdl2::gfx::framerate::FPSManager;
 use sdl2::keyboard::Keycode;
+use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::EventPump; // , Sdl, VideoSubsystem};
@@ -13,7 +14,7 @@ pub struct Ui {
     // video_subsystem: VideoSubsystem,
     event_pump: EventPump,
     fps_manager: FPSManager,
-    fps: u32,
+    fps: f64,
     running: bool,
 }
 
@@ -37,13 +38,14 @@ impl Ui {
             // video_subsystem,
             fps_manager,
             event_pump,
-            fps: 0,
+            fps: 0.,
             running: true,
         }
     }
 
     pub fn clear(&mut self) {
-        self.canvas.clear();
+        // self.canvas.set_draw_color(Color::BLACK);
+        // self.canvas.clear();
     }
 
     pub fn requested_app_closing(&self) -> bool {
@@ -64,10 +66,10 @@ impl Ui {
 
     pub fn finish_frame(&mut self) {
         self.canvas.present();
-        self.fps = self.fps_manager.delay();
+        self.fps = 1000. / self.fps_manager.delay() as f64;
     }
 
-    pub fn get_fps(&self) -> u32 {
+    pub fn get_fps(&self) -> f64 {
         self.fps
     }
 }
