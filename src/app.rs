@@ -1,11 +1,12 @@
 use crate::ui::Ui;
+use crate::sandsim::grid::Grid;
 
 pub struct App {
     width: u32,
     height: u32,
     ui: Ui,
-
-    i: u8,
+    
+    grid: Grid,
 }
 
 impl App {
@@ -13,15 +14,15 @@ impl App {
         let width = 800;
         let height = 800;
         let title = "Sandgame";
+        let fps_target = 12; //TODO Create our own FPS manager because the one from SDL is not working
 
-        let ui = Ui::new(width, height, title);
+        let ui = Ui::new(width, height, title, fps_target); 
         App {
             width,
             height,
-
             ui,
 
-            i: 0,
+            grid: Grid::new(width, height),
         }
     }
 
@@ -35,22 +36,15 @@ impl App {
             self.update();
             self.draw();
 
-            self.ui.refresh();
-            self.finish_frame();
+            self.ui.finish_frame();
         }
     }
     
     pub fn update(&mut self) {
-        self.i = (self.i + 1) % 255;
     }
 
     pub fn draw(&mut self) {
-        self.ui.canvas.set_draw_color(sdl2::pixels::Color::RGB(self.i, 64, 255-self.i));
-        self.ui.canvas.clear();
-    }
-
-    pub fn finish_frame(&mut self) {
-        std::thread::sleep(std::time::Duration::from_millis(10));
+        self.grid.draw(&mut self.ui.canvas);
     }
 
     pub fn handle_event(&mut self, event: sdl2::event::Event) {
