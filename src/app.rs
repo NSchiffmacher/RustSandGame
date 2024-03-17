@@ -37,6 +37,7 @@ impl App {
             self.draw();
 
             self.ui.finish_frame();
+            println!("{}", self.ui.get_fps());
         }
     }
     
