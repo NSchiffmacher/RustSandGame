@@ -17,7 +17,7 @@ impl App {
         let width = 800;
         let height = 800;
         let title = "Sandgame";
-        let fps_target = 200; //TODO Create our own FPS manager because the one from SDL is not working
+        let fps_target = 90; //TODO Create our own FPS manager because the one from SDL is not working
 
         let ui = Ui::new(width, height, title, fps_target); 
         App {
@@ -40,6 +40,7 @@ impl App {
             self.draw();
 
             self.ui.finish_frame();
+            println!("FPS: {}", self.ui.fps);
         }
     }
     
@@ -55,12 +56,13 @@ impl App {
 
             let color = color::vary_color(SAND_CELL_COLOR, 10);
 
-            if self.grid.is_empty(grid_x, grid_y) {
-                self.grid.set(grid_x, grid_y, Some(color));
+            if self.grid.is_empty((grid_x, grid_y)) {
+                self.grid.set((grid_x, grid_y), Some(color));
             }
         }
 
         // Logic
+        self.grid.update();
     }
 
     pub fn draw(&mut self) {

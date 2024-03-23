@@ -13,7 +13,7 @@ pub struct Ui {
     // video_subsystem: VideoSubsystem,
     pub event_pump: EventPump,
     fps_manager: FPSManager,
-    fps: f64,
+    pub fps: f64,
     running: bool,
 }
 
