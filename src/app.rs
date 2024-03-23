@@ -5,8 +5,8 @@ use crate::color;
 use sdl2::event::Event;
 
 pub struct App {
-    width: u32,
-    height: u32,
+    width: i32,
+    height: i32,
     ui: Ui,
     
     grid: Grid,
@@ -47,8 +47,8 @@ impl App {
         // Inputs
         let mouse_state = self.ui.event_pump.mouse_state();
         if mouse_state.left() {
-            let x = mouse_state.x() as u32;
-            let y = mouse_state.y() as u32;
+            let x = mouse_state.x();
+            let y = mouse_state.y();
 
             let grid_x = x / PIXEL_SIZE;
             let grid_y = y / PIXEL_SIZE;

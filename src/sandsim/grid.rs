@@ -7,18 +7,18 @@ use std::collections::HashSet;
 pub type Cell = Option<Color>;
 pub const EMPTY_CELL_COLOR: Color = Color { r: 0, g: 0, b: 0, a: 255 };
 pub const SAND_CELL_COLOR: Color = Color { r: 246, g: 215, b: 176, a: 255 };
-pub const PIXEL_SIZE: u32 = 10;
+pub const PIXEL_SIZE: i32 = 3;
 
 pub struct Grid {
-    pub width: u32,
-    pub height: u32,
+    pub width: i32,
+    pub height: i32,
     pub cells: Vec<Cell>,
-    pub cells_to_draw: HashSet<(u32, u32)>,
+    pub cells_to_draw: HashSet<(i32, i32)>,
 }
 
 #[allow(dead_code)]
 impl Grid {
-    pub fn new(window_width: u32, window_height: u32) -> Grid {
+    pub fn new(window_width: i32, window_height: i32) -> Grid {
         let width = window_width / PIXEL_SIZE;
         let height = window_height / PIXEL_SIZE;
         let cells = vec![None; (width * height) as usize];
@@ -39,16 +39,24 @@ impl Grid {
         }
     }
 
-    pub fn set(&mut self, x: u32, y: u32, value: Cell) {
+    pub fn set(&mut self, x: i32, y: i32, value: Cell) {
+        if y >= self.height || x >= self.width || y < 0 || x < 0{
+            return;
+        }
+
         self.cells[(y * self.width + x) as usize] = value;
         self.cells_to_draw.insert((x, y));
     }
 
-    pub fn get(&self, x: u32, y: u32) -> Cell {
+    pub fn get(&self, x: i32, y: i32) -> Cell {
+        if y >= self.height || x >= self.width || y < 0 || x < 0{
+            return None;
+        }
+
         self.cells[(y * self.width + x) as usize]
     }
 
-    pub fn swap(&mut self, x1: u32, y1: u32, x2: u32, y2: u32) {
+    pub fn swap(&mut self, x1: i32, y1: i32, x2: i32, y2: i32) {
         let a = y1 * self.width + x1;
         let b = y2 * self.width + x2;
         let temp = self.cells[a as usize];
@@ -58,17 +66,31 @@ impl Grid {
         self.cells_to_draw.insert((x2, y2));
     }
 
-    pub fn is_empty(&self, x: u32, y: u32) -> bool {
+    pub fn is_empty(&self, x: i32, y: i32) -> bool {
         self.get(x, y).is_none()
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas<Window>) {
         for (x, y) in &self.cells_to_draw {
             let color = self.get(*x, *y).unwrap_or(EMPTY_CELL_COLOR);
-            let rect = sdl2::rect::Rect::new((*x * PIXEL_SIZE) as i32, (*y * PIXEL_SIZE) as i32, PIXEL_SIZE, PIXEL_SIZE);
+            let rect = sdl2::rect::Rect::new(*x * PIXEL_SIZE, *y * PIXEL_SIZE, PIXEL_SIZE as u32, PIXEL_SIZE as u32);
             canvas.set_draw_color(color);
             canvas.fill_rect(rect).unwrap();
         }
         self.cells_to_draw.clear();
+    }
+
+    pub fn update_pixel(&mut self, x: i32, y: i32) {
+        if self.is_empty(x, y+1) {
+            self.swap(x, y, x, y+1);
+        }
+    }
+
+    pub fn update(&mut self) {
+        for y in 0..self.height {
+            for x in 0..self.width {
+                self.update_pixel(x, y);
+            }
+        }
     }
 }

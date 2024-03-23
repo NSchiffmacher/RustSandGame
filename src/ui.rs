@@ -18,11 +18,11 @@ pub struct Ui {
 }
 
 impl Ui {
-    pub fn new(width: u32, height: u32, title: &str, fps_target: u32) -> Ui{
+    pub fn new(width: i32, height: i32, title: &str, fps_target: u32) -> Ui{
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
     
-        let window = video_subsystem.window(title, width, height)
+        let window = video_subsystem.window(title, width as u32, height as u32)
             .position_centered()
             .build()
             .unwrap();
@@ -30,7 +30,7 @@ impl Ui {
         let canvas = window.into_canvas().build().unwrap();
         let event_pump = sdl_context.event_pump().unwrap();
         let mut fps_manager = FPSManager::new();
-        fps_manager.set_framerate(fps_target).unwrap();
+        fps_manager.set_framerate(fps_target as u32).unwrap();
         Ui {
             canvas,
             // sdl_context,
