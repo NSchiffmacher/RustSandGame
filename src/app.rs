@@ -54,11 +54,11 @@ impl App {
             let grid_x = x / PIXEL_SIZE;
             let grid_y = y / PIXEL_SIZE;
 
-            let color = color::vary_color(SAND_CELL_COLOR, 10);
-
-            if self.grid.is_empty((grid_x, grid_y)) {
-                self.grid.set((grid_x, grid_y), Some(color));
-            }
+            self.grid.set_circle(
+                (grid_x, grid_y),
+                |_, _| Some(color::vary_color(SAND_CELL_COLOR, 10)),
+                2, 
+                0.5);
         }
 
         // Logic

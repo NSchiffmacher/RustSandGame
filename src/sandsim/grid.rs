@@ -49,6 +49,20 @@ impl Grid {
         self.cells_to_draw.insert((x, y));
     }
 
+    pub fn set_circle(&mut self, (x, y): Position, color_callback: fn(i32, i32) -> Cell, radius: i32, probability: f32) {
+        for i in -radius..=radius {
+            for j in -radius..=radius {
+                if i * i + j * j <= radius * radius {
+                    let new_x = x + i;
+                    let new_y = y + j;
+                    if new_x >= 0 && new_x < self.width && new_y >= 0 && new_y < self.height && self.is_empty((new_x, new_y)) && rand::random::<f32>() < probability{
+                        self.set((new_x, new_y), color_callback(new_x, new_y));
+                    }
+                }
+            }
+        }
+    }
+
     pub fn get(&self, (x, y): Position) -> Cell {
         if y >= self.height || x >= self.width || y < 0 || x < 0{
             return None;
@@ -90,9 +104,9 @@ impl Grid {
 
             if self.is_empty(down) {
                 self.swap((x, y), down);
-            } else if self.is_empty(down_left) {
+            } else if x - 1 >= 0 && self.is_empty(down_left) {
                 self.swap((x, y), down_left);
-            } else if self.is_empty(down_right) {
+            } else if x + 1 < self.width && self.is_empty(down_right) {
                 self.swap((x, y), down_right);
             }
         }
