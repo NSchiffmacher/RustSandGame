@@ -72,8 +72,4 @@ impl Ui {
         self.canvas.present();
         self.fps = 1000. / self.fps_manager.delay() as f64;
     }
-
-    pub fn get_fps(&self) -> f64 {
-        self.fps
-    }
 }

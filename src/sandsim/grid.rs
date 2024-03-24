@@ -4,6 +4,7 @@ use sdl2::video::Window;
 use std::collections::HashSet;
 
 use crate::sandsim::particle::*;
+use crate::sandsim::brush_settings::BrushSettings;
 
 pub type Cell = Box<dyn Particle>;
 pub type Position = (i32, i32);
@@ -48,14 +49,14 @@ impl Grid {
         self.cells_to_draw.insert((x, y));
     }
 
-    pub fn set_circle(&mut self, (x, y): Position, particle_callback: fn(i32, i32) -> Cell, radius: i32, probability: f32) {
-        for i in -radius..=radius {
-            for j in -radius..=radius {
-                if i * i + j * j <= radius * radius {
+    pub fn set_circle(&mut self, (x, y): Position, brush_settings: &BrushSettings) {
+        for i in -brush_settings.size..=brush_settings.size {
+            for j in -brush_settings.size..=brush_settings.size {
+                if i * i + j * j <= brush_settings.size * brush_settings.size {
                     let new_x = x + i;
                     let new_y = y + j;
-                    if new_x >= 0 && new_x < self.width && new_y >= 0 && new_y < self.height && rand::random::<f32>() < probability{
-                        let particle = particle_callback(new_x, new_y);
+                    if new_x >= 0 && new_x < self.width && new_y >= 0 && new_y < self.height && rand::random::<f32>() < brush_settings.probability {
+                        let particle = (brush_settings.callback)((new_x, new_y));
                         if particle.get_id() == EMPTY_ID || self.get((new_x, new_y)).get_id() == EMPTY_ID {
                             self.set((new_x, new_y), particle);
                         }

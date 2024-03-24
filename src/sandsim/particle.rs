@@ -6,14 +6,15 @@ pub const SAND_CELL_COLOR: Color = Color { r: 246, g: 215, b: 176, a: 255 };
 pub const EMPTY_CELL_COLOR: Color = Color { r: 0, g: 0, b: 0, a: 255 };
 pub const WOOD_CELL_COLOR: Color = Color { r: 68, g: 48, b: 34, a: 255 };
 
-pub const EMPTY_ID: u8 = 0;
-pub const SAND_ID: u8 = 1;
-pub const WOOD_ID: u8 = 2;
+pub type ParticleId = u8;
+pub const EMPTY_ID: ParticleId = 0;
+pub const SAND_ID: ParticleId = 1;
+pub const WOOD_ID: ParticleId = 2;
 
 pub trait Particle {
     fn get_color(&self) -> Color;
     fn update(&mut self) {}
-    fn get_id(&self) -> u8;
+    fn get_id(&self) -> ParticleId;
     fn get_update_count(&self) -> u8 { 0 }
     fn was_modified(&self) -> bool { false }
     fn reset_velocity(&mut self) { }
@@ -37,7 +38,7 @@ impl Particle for Sand {
         self.update_velocity();
     }
 
-    fn get_id(&self) -> u8 {
+    fn get_id(&self) -> ParticleId {
         SAND_ID
     }
 
@@ -94,7 +95,7 @@ impl Particle for Empty {
     fn update(&mut self) {
     }
 
-    fn get_id(&self) -> u8 {
+    fn get_id(&self) -> ParticleId {
         EMPTY_ID
     }
 }
@@ -119,7 +120,7 @@ impl Particle for Wood {
     fn update(&mut self) {
     }
 
-    fn get_id(&self) -> u8 {
+    fn get_id(&self) -> ParticleId {
         WOOD_ID
     }
 }

@@ -2,16 +2,21 @@ extern crate sdl2;
 
 use crate::sandsim::particle::*;
 use crate::ui::Ui;
+use crate::sandsim::brush_settings::*;
 use crate::sandsim::grid::{Grid, PIXEL_SIZE};
 
 use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
+use std::collections::HashMap;
 
 pub struct App {
-    width: i32,
-    height: i32,
+    // width: i32,
+    // height: i32,
     ui: Ui,
     
     grid: Grid,
+    brush_settings_map: HashMap<ParticleId, BrushSettings>,
+    selected_brush: ParticleId,
 }
 
 impl App {
@@ -23,11 +28,13 @@ impl App {
 
         let ui = Ui::new(width, height, title, fps_target); 
         App {
-            width,
-            height,
+            // width,
+            // height,
             ui,
 
             grid: Grid::new(width, height),
+            brush_settings_map: make_default_brush_settings_map(),
+            selected_brush: SAND_ID,
         }
     }
 
@@ -58,9 +65,7 @@ impl App {
 
             self.grid.set_circle(
                 (grid_x, grid_y),
-                |_, _| Wood::boxed(),
-                2, 
-                1.);
+                self.brush_settings_map.get(&self.selected_brush).unwrap());
         }
 
         if mouse_state.right() {
@@ -70,11 +75,7 @@ impl App {
             let grid_x = x / PIXEL_SIZE;
             let grid_y = y / PIXEL_SIZE;
 
-            self.grid.set_circle(
-                (grid_x, grid_y),
-                |_, _| Empty::boxed(),
-                4, 
-                1.);
+            self.grid.set_circle((grid_x, grid_y), self.brush_settings_map.get(&EMPTY_ID).unwrap());
         }
 
         // Logic
@@ -87,6 +88,9 @@ impl App {
 
     pub fn handle_event(&mut self, event: Event) {
         match event {
+            Event::KeyDown { keycode: Some(Keycode::Num1), .. } => { self.selected_brush = SAND_ID; println!("Selected sand");  },
+            Event::KeyDown { keycode: Some(Keycode::Num2), .. } => { self.selected_brush = WOOD_ID; println!("Selected wood");  },
+            Event::KeyDown { keycode: Some(Keycode::Num3), .. } => { self.selected_brush = EMPTY_ID; println!("Selected empty"); },
             _ => (),
         }
     }
