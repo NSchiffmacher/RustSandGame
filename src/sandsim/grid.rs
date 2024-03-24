@@ -65,8 +65,8 @@ impl Grid {
         }
     }
 
-    pub fn get(&self, (x, y): Position) -> &Cell {
-        &self.cells[(y * self.width + x) as usize]
+    pub fn get(&mut self, (x, y): Position) -> &mut Cell {
+        &mut self.cells[(y * self.width + x) as usize]
     }
 
     pub fn swap(&mut self, (x1, y1): Position, (x2, y2): Position) {
@@ -79,22 +79,23 @@ impl Grid {
         self.cells_to_draw.insert((x2, y2));
     }
 
-    pub fn is_empty(&self, (x, y): Position) -> bool {
+    pub fn is_empty(&mut self, (x, y): Position) -> bool {
         self.get((x, y)).get_id() == EMPTY_ID
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas<Window>) {
-        for (x, y) in &self.cells_to_draw {
-            let color = self.get((*x, *y)).get_color();
-            let rect = sdl2::rect::Rect::new(*x * PIXEL_SIZE, *y * PIXEL_SIZE, PIXEL_SIZE as u32, PIXEL_SIZE as u32);
+        let pos: Vec<_> = self.cells_to_draw.iter().cloned().collect();
+        for (x, y) in pos {
+            let color = self.get((x, y)).get_color();
+            let rect = sdl2::rect::Rect::new(x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE as u32, PIXEL_SIZE as u32);
             canvas.set_draw_color(color);
             canvas.fill_rect(rect).unwrap();
         }
         self.cells_to_draw.clear();
     }
 
-    pub fn update_pixel(&mut self, (x, y): Position) {
-        if self.is_empty((x, y)) { return; }
+    pub fn update_pixel(&mut self, (x, y): Position) -> Position {
+        if self.is_empty((x, y)) { return (x, y); }
 
         if y + 1 < self.height {
             let down_left = (x - 1, y + 1);
@@ -103,12 +104,17 @@ impl Grid {
 
             if self.is_empty(down) {
                 self.swap((x, y), down);
+                return down;
             } else if x - 1 >= 0 && self.is_empty(down_left) {
                 self.swap((x, y), down_left);
+                return down_left;
             } else if x + 1 < self.width && self.is_empty(down_right) {
                 self.swap((x, y), down_right);
+                return down_right;
             }
         }
+
+        return (x, y);
     }
 
     pub fn update(&mut self) {
@@ -122,7 +128,24 @@ impl Grid {
             };
 
             while cur >= 0 && cur < self.width {
-                self.update_pixel((cur, y));
+                let particle = self.get((cur, y));
+                particle.update();
+                if !particle.was_modified() {
+                    cur += step;
+                    continue;
+                }
+
+                let mut index = (cur, y);
+                for _ in 0..particle.get_update_count() {
+                    let new_index = self.update_pixel(index);
+                    if new_index != index {
+                        index = new_index;
+                    } else {
+                        // Did not move because of a collision
+                        self.get(index).reset_velocity();
+                    }
+                }
+                
                 cur += step;
             }
         }
