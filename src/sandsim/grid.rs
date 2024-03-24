@@ -4,10 +4,11 @@ use sdl2::pixels::Color;
 
 use std::collections::HashSet;
 
-pub type Cell = Option<Color>;
+use crate::sandsim::particle::*;
+
+pub type Cell = Box<dyn Particle>;
 pub type Position = (i32, i32);
 pub const EMPTY_CELL_COLOR: Color = Color { r: 0, g: 0, b: 0, a: 255 };
-pub const SAND_CELL_COLOR: Color = Color { r: 246, g: 215, b: 176, a: 255 };
 pub const PIXEL_SIZE: i32 = 5;
 
 pub struct Grid {
@@ -22,7 +23,7 @@ impl Grid {
     pub fn new(window_width: i32, window_height: i32) -> Grid {
         let width = window_width / PIXEL_SIZE;
         let height = window_height / PIXEL_SIZE;
-        let cells = vec![None; (width * height) as usize];
+        let cells = std::iter::repeat_with(|| Empty::boxed()).take((width * height) as usize).collect();
         Grid {
             width,
             height,
@@ -32,7 +33,7 @@ impl Grid {
     }
 
     pub fn clear(&mut self) {
-        self.cells = vec![None; (self.width * self.height) as usize];
+        self.cells = std::iter::repeat_with(|| Empty::boxed()).take((self.width * self.height) as usize).collect();
         for y in 0..self.height/PIXEL_SIZE {
             for x in 0..self.width/PIXEL_SIZE {
                 self.cells_to_draw.insert((x, y));
@@ -49,45 +50,42 @@ impl Grid {
         self.cells_to_draw.insert((x, y));
     }
 
-    pub fn set_circle(&mut self, (x, y): Position, color_callback: fn(i32, i32) -> Cell, radius: i32, probability: f32) {
+    pub fn set_circle(&mut self, (x, y): Position, particle_callback: fn(i32, i32) -> Cell, radius: i32, probability: f32) {
         for i in -radius..=radius {
             for j in -radius..=radius {
                 if i * i + j * j <= radius * radius {
                     let new_x = x + i;
                     let new_y = y + j;
-                    if new_x >= 0 && new_x < self.width && new_y >= 0 && new_y < self.height && self.is_empty((new_x, new_y)) && rand::random::<f32>() < probability{
-                        self.set((new_x, new_y), color_callback(new_x, new_y));
+                    if new_x >= 0 && new_x < self.width && new_y >= 0 && new_y < self.height && rand::random::<f32>() < probability{
+                        let particle = particle_callback(new_x, new_y);
+                        if particle.get_id() == EMPTY_ID || self.get((new_x, new_y)).get_id() == EMPTY_ID {
+                            self.set((new_x, new_y), particle);
+                        }
                     }
                 }
             }
         }
     }
 
-    pub fn get(&self, (x, y): Position) -> Cell {
-        if y >= self.height || x >= self.width || y < 0 || x < 0{
-            return None;
-        }
-
-        self.cells[(y * self.width + x) as usize]
+    pub fn get(&self, (x, y): Position) -> &Cell {
+        &self.cells[(y * self.width + x) as usize]
     }
 
     pub fn swap(&mut self, (x1, y1): Position, (x2, y2): Position) {
         let a = y1 * self.width + x1;
         let b = y2 * self.width + x2;
-        let temp = self.cells[a as usize];
-        self.cells[a as usize] = self.cells[b as usize];
-        self.cells[b as usize] = temp;
+        self.cells.swap(a as usize, b as usize);
         self.cells_to_draw.insert((x1, y1));
         self.cells_to_draw.insert((x2, y2));
     }
 
     pub fn is_empty(&self, (x, y): Position) -> bool {
-        self.get((x, y)).is_none()
+        self.get((x, y)).get_id() == EMPTY_ID
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas<Window>) {
         for (x, y) in &self.cells_to_draw {
-            let color = self.get((*x, *y)).unwrap_or(EMPTY_CELL_COLOR);
+            let color = self.get((*x, *y)).get_color();
             let rect = sdl2::rect::Rect::new(*x * PIXEL_SIZE, *y * PIXEL_SIZE, PIXEL_SIZE as u32, PIXEL_SIZE as u32);
             canvas.set_draw_color(color);
             canvas.fill_rect(rect).unwrap();

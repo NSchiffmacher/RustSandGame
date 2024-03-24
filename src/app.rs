@@ -1,6 +1,6 @@
+use crate::sandsim::particle::*;
 use crate::ui::Ui;
-use crate::sandsim::grid::{Grid, PIXEL_SIZE, SAND_CELL_COLOR};
-use crate::color;
+use crate::sandsim::grid::{Grid, PIXEL_SIZE};
 
 use sdl2::event::Event;
 
@@ -56,9 +56,23 @@ impl App {
 
             self.grid.set_circle(
                 (grid_x, grid_y),
-                |_, _| Some(color::vary_color(SAND_CELL_COLOR, 10)),
+                |_, _| Sand::boxed(),
                 2, 
                 0.5);
+        }
+
+        if mouse_state.right() {
+            let x = mouse_state.x();
+            let y = mouse_state.y();
+
+            let grid_x = x / PIXEL_SIZE;
+            let grid_y = y / PIXEL_SIZE;
+
+            self.grid.set_circle(
+                (grid_x, grid_y),
+                |_, _| Empty::boxed(),
+                4, 
+                1.);
         }
 
         // Logic
