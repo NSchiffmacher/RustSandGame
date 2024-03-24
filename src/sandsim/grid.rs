@@ -1,6 +1,5 @@
 use sdl2::render::Canvas;
 use sdl2::video::Window;
-use sdl2::pixels::Color;
 
 use std::collections::HashSet;
 
@@ -8,7 +7,6 @@ use crate::sandsim::particle::*;
 
 pub type Cell = Box<dyn Particle>;
 pub type Position = (i32, i32);
-pub const EMPTY_CELL_COLOR: Color = Color { r: 0, g: 0, b: 0, a: 255 };
 pub const PIXEL_SIZE: i32 = 5;
 
 pub struct Grid {
@@ -112,8 +110,17 @@ impl Grid {
 
     pub fn update(&mut self) {
         for y in (0..self.height).rev() {
-            for x in 0..self.width {
-                self.update_pixel((x, y));
+            let (mut cur, step) = {
+                if rand::random::<f32>() < 0.5 {
+                    (0, 1)
+                } else {
+                    (self.width - 1, -1)
+                }
+            };
+
+            while cur >= 0 && cur < self.width {
+                self.update_pixel((cur, y));
+                cur += step;
             }
         }
     }
