@@ -4,9 +4,11 @@ use crate::color;
 
 pub const SAND_CELL_COLOR: Color = Color { r: 246, g: 215, b: 176, a: 255 };
 pub const EMPTY_CELL_COLOR: Color = Color { r: 0, g: 0, b: 0, a: 255 };
+pub const WOOD_CELL_COLOR: Color = Color { r: 68, g: 48, b: 34, a: 255 };
 
 pub const EMPTY_ID: u8 = 0;
 pub const SAND_ID: u8 = 1;
+pub const WOOD_ID: u8 = 2;
 
 pub trait Particle {
     fn get_color(&self) -> Color;
@@ -103,3 +105,30 @@ impl Empty {
     }
 }
 // =================== END EMPTY CELL =====================
+
+// ===================== WOOD CELL =======================
+pub struct Wood {
+    color: Color,
+}
+
+impl Particle for Wood {
+    fn get_color(&self) -> Color {
+        self.color
+    }
+
+    fn update(&mut self) {
+    }
+
+    fn get_id(&self) -> u8 {
+        WOOD_ID
+    }
+}
+
+impl Wood {
+    pub fn boxed() -> Box<dyn Particle> {
+        Box::new(Wood {
+            color: color::vary_color(WOOD_CELL_COLOR, 10),
+        })
+    }
+}
+// =================== WOOD SAND CELL =======================

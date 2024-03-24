@@ -58,9 +58,9 @@ impl App {
 
             self.grid.set_circle(
                 (grid_x, grid_y),
-                |_, _| Sand::boxed(),
+                |_, _| Wood::boxed(),
                 2, 
-                0.5);
+                1.);
         }
 
         if mouse_state.right() {
