@@ -70,6 +70,8 @@ impl Grid {
     }
 
     pub fn swap(&mut self, (x1, y1): Position, (x2, y2): Position) {
+        if self.is_empty((x1, y1)) && self.is_empty((x2, y2)) { return; }
+
         let a = y1 * self.width + x1;
         let b = y2 * self.width + x2;
         self.cells.swap(a as usize, b as usize);
@@ -92,8 +94,9 @@ impl Grid {
     }
 
     pub fn update_pixel(&mut self, (x, y): Position) {
-        // Gravity
-        if !self.is_empty((x, y)) && y + 1 < self.height {
+        if self.is_empty((x, y)) { return; }
+
+        if y + 1 < self.height {
             let down_left = (x - 1, y + 1);
             let down_right = (x + 1, y + 1);
             let down = (x, y + 1);

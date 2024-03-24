@@ -27,7 +27,12 @@ impl Ui {
             .build()
             .unwrap();
     
-        let canvas = window.into_canvas().build().unwrap();
+        let canvas = window
+            .into_canvas()
+            .present_vsync()
+            .software()
+            .build()
+            .unwrap();
         let event_pump = sdl_context.event_pump().unwrap();
         let mut fps_manager = FPSManager::new();
         fps_manager.set_framerate(fps_target as u32).unwrap();

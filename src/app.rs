@@ -1,3 +1,5 @@
+extern crate sdl2;
+
 use crate::sandsim::particle::*;
 use crate::ui::Ui;
 use crate::sandsim::grid::{Grid, PIXEL_SIZE};
@@ -17,7 +19,7 @@ impl App {
         let width = 800;
         let height = 800;
         let title = "Sandgame";
-        let fps_target = 90; //TODO Create our own FPS manager because the one from SDL is not working
+        let fps_target = 200; //TODO Create our own FPS manager because the one from SDL is not working
 
         let ui = Ui::new(width, height, title, fps_target); 
         App {
