@@ -1,6 +1,8 @@
-
 use sdl2::pixels::Color;
+
 use crate::color;
+use crate::sandsim::behavior::*;
+use crate::sandsim::particle_action::ParticleAction;
 
 pub const SAND_CELL_COLOR: Color = Color { r: 246, g: 215, b: 176, a: 255 };
 pub const EMPTY_CELL_COLOR: Color = Color { r: 0, g: 0, b: 0, a: 255 };
@@ -14,15 +16,35 @@ pub const WOOD_ID: ParticleId = 2;
 pub struct Particle {
     color: Color,
     particle_id: ParticleId,
+    modified: bool,
+    behaviors: Vec<Box<dyn Behavior>>,
 }
 
 impl Particle {
-    pub fn get_color(&self) -> Color {
-        self.color
+    pub fn update(&mut self, grid: &Vec<ParticleId>) { 
+        let mut actions = vec![];
+        self.modified = false;
+
+        for behavior in self.behaviors.iter_mut() {
+            actions.extend(behavior.update(grid));
+        }
+
+        for action in &actions {
+            self.handle_action(action);
+        }
     }
 
-    pub fn update(&mut self, grid: &Vec<ParticleId>) { 
+    pub fn handle_action(&mut self, action: &ParticleAction) {
+        match action {
+            ParticleAction::SetColor{color} => {
+                self.color = *color;
+                self.modified = true;
+            },
+        }
+    }
 
+    pub fn get_color(&self) -> Color {
+        self.color
     }
 
     pub fn get_id(&self) -> ParticleId {
@@ -34,32 +56,38 @@ impl Particle {
     }
 
     pub fn was_modified(&self) -> bool { 
-        false
+        self.modified
     }
     
     pub fn reset_velocity(&mut self) { 
 
     }
 
-    pub fn new_sand() -> Particle {
-        Particle {
-            color: color::vary_color(SAND_CELL_COLOR, 10),
-            particle_id: SAND_ID,
+    pub fn new(color: Color, particle_id: ParticleId, behaviors: Vec<Box<dyn Behavior>>) -> Self {
+        Self {
+            color,
+            particle_id,
+            modified: false,
+            behaviors,
         }
     }
 
-    pub fn new_empty() -> Particle {
-        Particle {
-            color: EMPTY_CELL_COLOR,
-            particle_id: EMPTY_ID,
-        }
+    pub fn new_sand() -> Self {
+        let behaviors = vec![
+            MoveDown::boxed(8.0, 0.4),
+        ];
+        Self::new(color::vary_color(SAND_CELL_COLOR, 10), SAND_ID, behaviors)
     }
 
-    pub fn new_wood() -> Particle {
-        Particle {
-            color: color::vary_color(WOOD_CELL_COLOR, 10),
-            particle_id: WOOD_ID,
-        }
+    pub fn new_empty() -> Self {
+        Self::new(EMPTY_CELL_COLOR, EMPTY_ID, vec![])
+    }
+
+    pub fn new_wood() -> Self {
+        Self::new(
+            color::vary_color(WOOD_CELL_COLOR, 10),
+            WOOD_ID,
+            vec![])
     }
 }
 

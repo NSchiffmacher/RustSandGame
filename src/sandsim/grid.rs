@@ -139,15 +139,16 @@ impl Grid {
             };
 
             while cur >= 0 && cur < self.width {
-                let particle = self.get((cur, y));
-                particle.update(&cell_types);
-                if !particle.was_modified() {
+                self.get((cur, y)).update(&cell_types);
+                if !self.get((cur, y)).was_modified() {
                     cur += step;
                     continue;
                 }
 
+                self.cells_to_draw.insert((cur, y));
+
                 let mut index = (cur, y);
-                for _ in 0..particle.get_update_count() {
+                for _ in 0..self.get((cur, y)).get_update_count() {
                     let new_index = self.update_pixel(index);
                     if new_index != index {
                         index = new_index;
