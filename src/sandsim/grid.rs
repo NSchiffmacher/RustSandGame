@@ -6,14 +6,13 @@ use std::collections::HashSet;
 use crate::sandsim::particle::*;
 use crate::sandsim::brush_settings::BrushSettings;
 
-pub type Cell = Box<dyn Particle>;
 pub type Position = (i32, i32);
 pub const PIXEL_SIZE: i32 = 5;
 
 pub struct Grid {
     pub width: i32,
     pub height: i32,
-    pub cells: Vec<Cell>,
+    pub cells: Vec<Particle>,
     pub cells_to_draw: HashSet<(i32, i32)>,
 }
 
@@ -22,7 +21,7 @@ impl Grid {
     pub fn new(window_width: i32, window_height: i32) -> Grid {
         let width = window_width / PIXEL_SIZE;
         let height = window_height / PIXEL_SIZE;
-        let cells = std::iter::repeat_with(|| Empty::boxed()).take((width * height) as usize).collect();
+        let cells = std::iter::repeat_with(|| Particle::new_empty()).take((width * height) as usize).collect();
         Grid {
             width,
             height,
@@ -32,7 +31,7 @@ impl Grid {
     }
 
     pub fn clear(&mut self) {
-        self.cells = std::iter::repeat_with(|| Empty::boxed()).take((self.width * self.height) as usize).collect();
+        self.cells = std::iter::repeat_with(|| Particle::new_empty()).take((self.width * self.height) as usize).collect();
         for y in 0..self.height/PIXEL_SIZE {
             for x in 0..self.width/PIXEL_SIZE {
                 self.cells_to_draw.insert((x, y));
@@ -40,7 +39,7 @@ impl Grid {
         }
     }
 
-    pub fn set(&mut self, (x, y): Position, value: Cell) {
+    pub fn set(&mut self, (x, y): Position, value: Particle) {
         if y >= self.height || x >= self.width || y < 0 || x < 0{
             return;
         }
@@ -66,7 +65,7 @@ impl Grid {
         }
     }
 
-    pub fn get(&mut self, (x, y): Position) -> &mut Cell {
+    pub fn get(&mut self, (x, y): Position) -> &mut Particle {
         &mut self.cells[(y * self.width + x) as usize]
     }
 
