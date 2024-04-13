@@ -13,6 +13,7 @@ pub struct Grid {
     pub width: i32,
     pub height: i32,
     pub cells: Vec<Particle>,
+    pub cell_types: Vec<ParticleId>,
     pub cells_to_draw: HashSet<(i32, i32)>,
 }
 
@@ -22,16 +23,19 @@ impl Grid {
         let width = window_width / PIXEL_SIZE;
         let height = window_height / PIXEL_SIZE;
         let cells = std::iter::repeat_with(|| Particle::new_empty()).take((width * height) as usize).collect();
+        let cell_types = std::iter::repeat_with(|| EMPTY_ID).take((width * height) as usize).collect();
         Grid {
             width,
             height,
             cells,
+            cell_types,
             cells_to_draw: HashSet::new(),
         }
     }
 
     pub fn clear(&mut self) {
         self.cells = std::iter::repeat_with(|| Particle::new_empty()).take((self.width * self.height) as usize).collect();
+        self.cell_types = std::iter::repeat_with(|| EMPTY_ID).take((self.width * self.height) as usize).collect();
         for y in 0..self.height/PIXEL_SIZE {
             for x in 0..self.width/PIXEL_SIZE {
                 self.cells_to_draw.insert((x, y));
@@ -44,6 +48,7 @@ impl Grid {
             return;
         }
 
+        self.cell_types[(y * self.width + x) as usize] = value.get_id();
         self.cells[(y * self.width + x) as usize] = value;
         self.cells_to_draw.insert((x, y));
     }
@@ -69,18 +74,23 @@ impl Grid {
         &mut self.cells[(y * self.width + x) as usize]
     }
 
+    pub fn get_type(&self, (x, y): Position) -> ParticleId {
+        self.cell_types[(y * self.width + x) as usize]
+    }
+
     pub fn swap(&mut self, (x1, y1): Position, (x2, y2): Position) {
         if self.is_empty((x1, y1)) && self.is_empty((x2, y2)) { return; }
 
         let a = y1 * self.width + x1;
         let b = y2 * self.width + x2;
         self.cells.swap(a as usize, b as usize);
+        self.cell_types.swap(a as usize, b as usize);
         self.cells_to_draw.insert((x1, y1));
         self.cells_to_draw.insert((x2, y2));
     }
 
-    pub fn is_empty(&mut self, (x, y): Position) -> bool {
-        self.get((x, y)).get_id() == EMPTY_ID
+    pub fn is_empty(&self, (x, y): Position) -> bool {
+        self.get_type((x, y)) == EMPTY_ID
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas<Window>) {
