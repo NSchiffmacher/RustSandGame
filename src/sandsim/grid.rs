@@ -128,6 +128,7 @@ impl Grid {
     }
 
     pub fn update(&mut self) {
+        let cell_types = self.cell_types.clone();
         for y in (0..self.height).rev() {
             let (mut cur, step) = {
                 if rand::random::<f32>() < 0.5 {
@@ -139,7 +140,7 @@ impl Grid {
 
             while cur >= 0 && cur < self.width {
                 let particle = self.get((cur, y));
-                particle.update();
+                particle.update(&cell_types);
                 if !particle.was_modified() {
                     cur += step;
                     continue;

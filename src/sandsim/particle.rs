@@ -21,7 +21,7 @@ impl Particle {
         self.color
     }
 
-    pub fn update(&mut self) { // , grid: Vec<ParticleId>) {
+    pub fn update(&mut self, grid: &Vec<ParticleId>) { 
 
     }
 
