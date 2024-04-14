@@ -8,7 +8,7 @@ pub type FloatPosition = (f64, f64);
 
 
 pub trait Behavior {
-    fn update(&mut self, grid: &mut Vec<Vec<ParticleId>>) -> Vec<ParticleAction>;
+    fn update(&mut self, dt: f64, grid: &mut Vec<Vec<ParticleId>>) -> Vec<ParticleAction>;
 }
 
 pub struct MoveDown {
@@ -19,7 +19,7 @@ pub struct MoveDown {
 }
 
 impl Behavior for MoveDown {
-    fn update(&mut self, grid: &mut Vec<Vec<ParticleId>>) -> Vec<ParticleAction> {
+    fn update(&mut self, dt: f64, grid: &mut Vec<Vec<ParticleId>>) -> Vec<ParticleAction> {
         vec![
             // ParticleAction::SetColor { color: Color { r: 244, g: 0, b: 0, a: 255 } }
         ]

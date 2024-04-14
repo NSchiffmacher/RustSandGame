@@ -116,7 +116,7 @@ impl Grid {
         self.cells_to_draw.clear();
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, dt: f64) {
         let mut cell_types = self.cell_types.clone();
         for y in (0..self.height).rev() {
             let (mut x, step) = {
@@ -129,7 +129,7 @@ impl Grid {
 
             while x >= 0 && x < self.width {
                 // Swaps are relative to the current cell
-                let modified = self.get((x, y)).update(&mut cell_types);
+                let modified = self.get((x, y)).update(dt, &mut cell_types);
                 
                 if modified {
                     let new_position = self.get((x, y)).get_position();

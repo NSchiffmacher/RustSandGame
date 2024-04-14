@@ -25,12 +25,12 @@ pub struct Particle {
 }
 
 impl Particle {
-    pub fn update(&mut self, grid: &mut Vec<Vec<ParticleId>>) -> bool { 
+    pub fn update(&mut self, dt: f64, grid: &mut Vec<Vec<ParticleId>>) -> bool { 
         let mut actions = vec![];
         self.modified = false;
 
         for behavior in self.behaviors.iter_mut() {
-            actions.extend(behavior.update(grid));
+            actions.extend(behavior.update(dt, grid));
         }
 
         for action in &actions {

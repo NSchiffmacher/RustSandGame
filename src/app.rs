@@ -79,7 +79,7 @@ impl App {
         }
 
         // Logic
-        self.grid.update();
+        self.grid.update(1. / 60.); // Tmp, will need to update to actual dt
     }
 
     pub fn draw(&mut self) {
