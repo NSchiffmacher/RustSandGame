@@ -13,7 +13,7 @@ pub struct Grid {
     pub width: i32,
     pub height: i32,
     pub cells: Vec<Vec<Particle>>,
-    pub cell_types: Vec<Vec<ParticleId>>,
+    // pub cell_types: Vec<Vec<ParticleId>>,
     pub cells_to_draw: HashSet<(i32, i32)>,
 }
 
@@ -23,12 +23,12 @@ impl Grid {
         let width = window_width / PIXEL_SIZE;
         let height = window_height / PIXEL_SIZE;
         let cells = Self::make_grid(width, height, |pos| Particle::new_empty(pos));
-        let cell_types = Self::make_grid(width, height, |_pos| EMPTY_ID);
+        // let cell_types = Self::make_grid(width, height, |_pos| EMPTY_ID);
         Grid {
             width,
             height,
             cells,
-            cell_types,
+            // cell_types,
             cells_to_draw: HashSet::new(),
         }
     }
@@ -47,7 +47,7 @@ impl Grid {
 
     pub fn clear(&mut self) {
         self.cells = Self::make_grid(self.width, self.height, |pos| Particle::new_empty(pos));
-        self.cell_types = Self::make_grid(self.width, self.height, |_pos| EMPTY_ID);
+        // self.cell_types = Self::make_grid(self.width, self.height, |_pos| EMPTY_ID);
         for y in 0..self.height {
             for x in 0..self.width {
                 self.cells_to_draw.insert((x, y));
@@ -60,7 +60,7 @@ impl Grid {
             return;
         }
 
-        self.cell_types[y as usize][x as usize] = value.get_id();
+        // self.cell_types[y as usize][x as usize] = value.get_id();
         self.cells[y as usize][x as usize]= value;
         self.cells_to_draw.insert((x, y));
     }
@@ -86,9 +86,9 @@ impl Grid {
         &mut self.cells[y as usize][x as usize]
     }
 
-    pub fn get_type(&self, (x, y): Position) -> ParticleId {
-        self.cell_types[y as usize][x as usize]
-    }
+    // pub fn get_type(&self, (x, y): Position) -> ParticleId {
+    //     self.cell_types[y as usize][x as usize]
+    // }
 
     pub fn swap(&mut self, (mut x1, mut y1): Position, (mut x2, mut y2): Position) {
         if self.is_empty((x1, y1)) && self.is_empty((x2, y2)) { return; }
@@ -107,17 +107,17 @@ impl Grid {
         }
 
         // Swap the types
-        let tmp = self.cell_types[y1 as usize][x1 as usize];
-        self.cell_types[y1 as usize][x1 as usize] = self.cell_types[y2 as usize][x2 as usize];
-        self.cell_types[y2 as usize][x2 as usize] = tmp;
+        // let tmp = self.cell_types[y1 as usize][x1 as usize];
+        // self.cell_types[y1 as usize][x1 as usize] = self.cell_types[y2 as usize][x2 as usize];
+        // self.cell_types[y2 as usize][x2 as usize] = tmp;
 
         // Force the redraw on both
         self.cells_to_draw.insert((x1, y1));
         self.cells_to_draw.insert((x2, y2));
     }
 
-    pub fn is_empty(&self, (x, y): Position) -> bool {
-        self.get_type((x, y)) == EMPTY_ID
+    pub fn is_empty(&mut self, (x, y): Position) -> bool {
+        self.get((x, y)).get_id() == EMPTY_ID
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas<Window>) {
@@ -133,6 +133,8 @@ impl Grid {
 
     pub fn update(&mut self, dt: f64) {
         let mut cell_types = self.build_cell_types();
+        let mut cell_behaviors = self.build_cell_behaviors();
+
         // let mut cell_types = self.cell_types.clone();
         for y in (0..self.height).rev() {
             let (mut x, step) = {
@@ -145,7 +147,7 @@ impl Grid {
 
             while x >= 0 && x < self.width {
                 // Swaps are relative to the current cell
-                let modified = self.get((x, y)).update(dt, &mut cell_types);
+                let modified = self.get((x, y)).update(dt, &mut cell_types, &mut cell_behaviors);
                 
                 if modified {
                     let new_position = self.get((x, y)).get_position();
@@ -167,6 +169,16 @@ impl Grid {
         for y in 0..self.height {
             for x in 0..self.width {
                 res[y as usize][x as usize] = self.get((x, y)).get_id();
+            }
+        }
+        res
+    }
+
+    fn build_cell_behaviors(&mut self) -> Vec<Vec<ParticleId>> {
+        let mut res = vec![vec![0; self.width as usize]; self.height as usize];
+        for y in 0..self.height {
+            for x in 0..self.width {
+                res[y as usize][x as usize] = self.get((x, y)).get_behaviors_ids();
             }
         }
         res

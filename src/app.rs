@@ -79,7 +79,7 @@ impl App {
         }
 
         // Logic
-        self.grid.update(1. / 60.); // Tmp, will need to update to actual dt
+        self.grid.update(1. / 60.); //TODO Tmp, will need to update to actual dt
     }
 
     pub fn draw(&mut self) {
@@ -90,7 +90,8 @@ impl App {
         match event {
             Event::KeyDown { keycode: Some(Keycode::Num1), .. } => { self.selected_brush = SAND_ID; println!("Selected sand");  },
             Event::KeyDown { keycode: Some(Keycode::Num2), .. } => { self.selected_brush = WOOD_ID; println!("Selected wood");  },
-            Event::KeyDown { keycode: Some(Keycode::Num3), .. } => { self.selected_brush = EMPTY_ID; println!("Selected empty"); },
+            Event::KeyDown { keycode: Some(Keycode::Num3), .. } => { self.selected_brush = SMOKE_ID; println!("Selected smoke"); },
+            Event::KeyDown { keycode: Some(Keycode::Num4), .. } => { self.selected_brush = EMPTY_ID; println!("Selected empty"); },
             _ => (),
         }
     }

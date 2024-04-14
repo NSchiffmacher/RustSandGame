@@ -3,10 +3,19 @@ use crate::sandsim::particle_action::ParticleAction;
 use crate::sandsim::grid::Position;
 
 pub type FloatPosition = (f64, f64);
+pub type BehaviorId = u8;
+
+pub const MOVE_DOWN_ID: BehaviorId = 1 << 1;
+pub const AIR_LIKE_ID: BehaviorId = 1 << 2;
 
 
 pub trait Behavior {
-    fn update(&mut self, dt: f64, grid: &mut Vec<Vec<ParticleId>>) -> Vec<ParticleAction>;
+    fn update(&mut self, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction>;
+    fn get_id(&self) -> BehaviorId;
+}
+
+fn has_behavior(position: Position, behaviors_grid: &Vec<Vec<BehaviorId>>, behavior_id: BehaviorId) -> bool {
+    behaviors_grid[position.1 as usize][position.0 as usize] & behavior_id != 0
 }
 
 
@@ -21,7 +30,14 @@ pub struct MoveDown {
 }
 
 impl Behavior for MoveDown {
-    fn update(&mut self, dt: f64, grid: &mut Vec<Vec<ParticleId>>) -> Vec<ParticleAction> {
+    fn get_id(&self) -> BehaviorId {
+        MOVE_DOWN_ID
+    }
+
+    fn update(&mut self, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
+        // Check if we have changed position between two frames
+        
+
         // Regular update
         self.velocity += self.max_velocity.min(self.acceleration * dt);
         self.float_position.1 += self.velocity * dt;
@@ -39,10 +55,17 @@ impl Behavior for MoveDown {
         }
 
         // We are in bounds, find target empty cell
-        if let Some(dx) = self.find_empty_cell(new_position, grid) {
+        if let Some(dx) = self.find_empty_cell(new_position, &behaviors_grid) {
             new_position.0 += dx;
+            
+            // Swap particle IDs
             grid[new_position.1 as usize][new_position.0 as usize] = grid[self.integer_position.1 as usize][self.integer_position.0 as usize];
             grid[self.integer_position.1 as usize][self.integer_position.0 as usize] = EMPTY_ID;
+
+            // Swap behaviors IDs
+            let tmp = behaviors_grid[new_position.1 as usize][new_position.0 as usize];
+            behaviors_grid[new_position.1 as usize][new_position.0 as usize] = grid[self.integer_position.1 as usize][self.integer_position.0 as usize];
+            behaviors_grid[self.integer_position.1 as usize][self.integer_position.0 as usize] = tmp;
             
             self.integer_position = new_position;
             self.float_position.0 += dx as f64;
@@ -71,23 +94,41 @@ impl MoveDown {
         self.float_position.1 = self.integer_position.1 as f64;
     }
 
-    fn find_empty_cell(&self, (x, y): Position, grid: &Vec<Vec<ParticleId>>) -> Option<i32> {
+    fn find_empty_cell(&self, (x, y): Position, grid: &Vec<Vec<BehaviorId>>) -> Option<i32> {
         // Check (x, y) first 
-        if grid[y as usize][x as usize] == EMPTY_ID {
+        if has_behavior((x, y), grid, AIR_LIKE_ID) {
             return Some(0);
         }
 
         // Otherwise, check both side, first choosen randomly
         let dx = if rand::random::<f32>() < 0.5 { 1 } else { -1 };
         let width = grid[0].len() as i32;
-        if x + dx >= 0 && x + dx < width && grid[y as usize][(x + dx) as usize] == EMPTY_ID {
+        if x + dx >= 0 && x + dx < width && has_behavior((x + dx, y), grid, AIR_LIKE_ID) {
             return Some(dx);
         }
 
-        if x - dx >= 0 && x - dx < width && grid[y as usize][(x - dx) as usize] == EMPTY_ID {
+        if x - dx >= 0 && x - dx < width && has_behavior((x - dx, y), grid, AIR_LIKE_ID){
             return Some(-dx);
         }
 
         None
+    }
+}
+
+// AirLike behavior
+pub struct AirLike {}
+impl Behavior for AirLike {
+    fn get_id(&self) -> BehaviorId {
+        AIR_LIKE_ID
+    }
+
+    fn update(&mut self, _dt: f64, _grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
+        vec![]
+    }
+}
+
+impl AirLike {
+    pub fn boxed() -> Box<dyn Behavior> {
+        Box::new(AirLike {})
     }
 }
