@@ -48,17 +48,16 @@ impl Particle {
 
     pub fn handle_action(&mut self, action: &ParticleAction) {
         match action {
-            // ParticleAction::SetColor{color} => {
-            //     self.color = *color;
-            //     self.modified = true;
-            // },
             ParticleAction::SetPosition { position } =>  {
                 self.position = *position;
             },
             ParticleAction::KillParticle { position } => {
                 // Pass it to the grid
                 self.required_actions.push(ParticleAction::KillParticle { position: *position });
-            }
+            },
+            ParticleAction::SetColor { color } => {
+                self.color = *color;
+            },
         }
         self.modified = true;
     }
@@ -124,11 +123,13 @@ impl Particle {
     }
 
     pub fn new_smoke(position: Position) -> Self {
+        let color = color::vary_color(SMOKE_CELL_COLOR, 3);
         let lifetime = rand::thread_rng().gen_range(4.0..=7.5);
+
         let behaviors = vec![
             MoveDown::boxed(position, 0.05 * 60., -0.001 * 60. * 60.),
             AirLike::boxed(),
-            LimitedLife::boxed(lifetime),
+            LimitedLife::boxed(lifetime, color, Color::RGBA(0, 0, 0, 255)),
         ];
         Self::new(position, color::vary_color(SMOKE_CELL_COLOR, 3), SMOKE_ID, behaviors)
     }
