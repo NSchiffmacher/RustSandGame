@@ -1,25 +1,5 @@
-use crate::sandsim::particle::*;
-use crate::sandsim::particle_action::ParticleAction;
-use crate::sandsim::grid::Position;
+use crate::sandsim::behaviors::*;
 
-pub type FloatPosition = (f64, f64);
-pub type BehaviorId = u8;
-
-pub const MOVE_DOWN_ID: BehaviorId = 1 << 1;
-pub const AIR_LIKE_ID: BehaviorId = 1 << 2;
-
-
-pub trait Behavior {
-    fn update(&mut self, position: Position, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction>;
-    fn get_id(&self) -> BehaviorId;
-}
-
-fn has_behavior(position: Position, behaviors_grid: &Vec<Vec<BehaviorId>>, behavior_id: BehaviorId) -> bool {
-    behaviors_grid[position.1 as usize][position.0 as usize] & behavior_id != 0
-}
-
-
-// MoveDown behavior
 pub struct MoveDown {
     acceleration: f64,
     max_velocity: f64,
@@ -116,23 +96,5 @@ impl MoveDown {
         }
 
         None
-    }
-}
-
-// AirLike behavior
-pub struct AirLike {}
-impl Behavior for AirLike {
-    fn get_id(&self) -> BehaviorId {
-        AIR_LIKE_ID
-    }
-
-    fn update(&mut self, _position: Position, _dt: f64, _grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
-        vec![]
-    }
-}
-
-impl AirLike {
-    pub fn boxed() -> Box<dyn Behavior> {
-        Box::new(AirLike {})
     }
 }

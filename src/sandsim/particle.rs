@@ -1,7 +1,7 @@
 use sdl2::pixels::Color;
 
 use crate::color;
-use crate::sandsim::behavior::*;
+use crate::sandsim::behaviors::*;
 use crate::sandsim::particle_action::ParticleAction;
 use crate::sandsim::grid::Position;
 
