@@ -81,7 +81,7 @@ impl Particle {
 
     pub fn new_sand(position: Position) -> Self {
         let behaviors = vec![
-            // MoveDown::boxed(8.0, 0.4),
+            MoveDown::boxed(position, 8.0, 0.4),
         ];
         Self::new(position, color::vary_color(SAND_CELL_COLOR, 10), SAND_ID, behaviors)
     }
