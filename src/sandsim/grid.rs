@@ -1,7 +1,7 @@
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 
-use std::collections::{HashSet, HashMap};
+use std::collections::HashSet;
 
 use crate::sandsim::particle::*;
 use crate::sandsim::brush_settings::BrushSettings;
@@ -47,7 +47,7 @@ impl Grid {
 
     pub fn clear(&mut self) {
         self.cells = Self::make_grid(self.width, self.height, |pos| Particle::new_empty(pos));
-        self.cell_types = Self::make_grid(self.width, self.height, |pos| EMPTY_ID);
+        self.cell_types = Self::make_grid(self.width, self.height, |_pos| EMPTY_ID);
         for y in 0..self.height {
             for x in 0..self.width {
                 self.cells_to_draw.insert((x, y));
@@ -90,13 +90,28 @@ impl Grid {
         self.cell_types[y as usize][x as usize]
     }
 
-    pub fn swap(&mut self, (x1, y1): Position, (x2, y2): Position) {
+    pub fn swap(&mut self, (mut x1, mut y1): Position, (mut x2, mut y2): Position) {
         if self.is_empty((x1, y1)) && self.is_empty((x2, y2)) { return; }
 
-        let a = y1 * self.width + x1;
-        let b = y2 * self.width + x2;
-        self.cells.swap(a as usize, b as usize);
-        self.cell_types.swap(a as usize, b as usize);
+        // Swap the particles
+        if y1 == y2 {
+            self.cells[y1 as usize].swap(x1 as usize, x2 as usize);
+        } else {
+            if y2 < y1 {
+                (y1, y2) = (y2, y1);
+                (x1, x2) = (x2, x1);
+            }
+
+            let (a, b) = self.cells.split_at_mut(y2 as usize);
+            std::mem::swap(&mut a[y1 as usize][x1 as usize], &mut b[0][x2 as usize]);
+        }
+
+        // Swap the types
+        let tmp = self.cell_types[y1 as usize][x1 as usize];
+        self.cell_types[y1 as usize][x1 as usize] = self.cell_types[y2 as usize][x2 as usize];
+        self.cell_types[y2 as usize][x2 as usize] = tmp;
+
+        // Force the redraw on both
         self.cells_to_draw.insert((x1, y1));
         self.cells_to_draw.insert((x2, y2));
     }
@@ -117,7 +132,8 @@ impl Grid {
     }
 
     pub fn update(&mut self, dt: f64) {
-        let mut cell_types = self.cell_types.clone();
+        let mut cell_types = self.build_cell_types();
+        // let mut cell_types = self.cell_types.clone();
         for y in (0..self.height).rev() {
             let (mut x, step) = {
                 if rand::random::<f32>() < 0.5 {
@@ -144,5 +160,15 @@ impl Grid {
                 x += step;
             }
         }
+    }
+
+    fn build_cell_types(&mut self) -> Vec<Vec<ParticleId>> {
+        let mut res = vec![vec![EMPTY_ID; self.width as usize]; self.height as usize];
+        for y in 0..self.height {
+            for x in 0..self.width {
+                res[y as usize][x as usize] = self.get((x, y)).get_id();
+            }
+        }
+        res
     }
 }

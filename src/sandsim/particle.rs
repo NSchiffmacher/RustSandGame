@@ -1,5 +1,4 @@
 use sdl2::pixels::Color;
-use std::collections::HashMap;
 
 use crate::color;
 use crate::sandsim::behavior::*;
@@ -42,10 +41,10 @@ impl Particle {
 
     pub fn handle_action(&mut self, action: &ParticleAction) {
         match action {
-            ParticleAction::SetColor{color} => {
-                self.color = *color;
-                self.modified = true;
-            },
+            // ParticleAction::SetColor{color} => {
+            //     self.color = *color;
+            //     self.modified = true;
+            // },
             ParticleAction::SetPosition { position } =>  {
                 self.position = *position;
                 self.modified = true;
@@ -65,10 +64,6 @@ impl Particle {
         self.position
     }
 
-    pub fn needs_redraw(&self) -> bool { 
-        self.modified
-    }
-    
     pub fn new(position: Position, color: Color, particle_id: ParticleId, behaviors: Vec<Box<dyn Behavior>>) -> Self {
         Self {
             color,
@@ -81,7 +76,7 @@ impl Particle {
 
     pub fn new_sand(position: Position) -> Self {
         let behaviors = vec![
-            MoveDown::boxed(position, 8.0, 0.4),
+            MoveDown::boxed(position, 8.0 * 60., 0.4 * 60. * 60.),
         ];
         Self::new(position, color::vary_color(SAND_CELL_COLOR, 10), SAND_ID, behaviors)
     }
