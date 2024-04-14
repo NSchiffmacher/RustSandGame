@@ -10,7 +10,7 @@ pub const AIR_LIKE_ID: BehaviorId = 1 << 2;
 
 
 pub trait Behavior {
-    fn update(&mut self, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction>;
+    fn update(&mut self, position: Position, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction>;
     fn get_id(&self) -> BehaviorId;
 }
 
@@ -34,9 +34,13 @@ impl Behavior for MoveDown {
         MOVE_DOWN_ID
     }
 
-    fn update(&mut self, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
+    fn update(&mut self, position: Position, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
         // Check if we have changed position between two frames
-        
+        if self.integer_position != position {
+            self.integer_position = position;
+            // self.stop_motion();
+            // Should return there ?
+        }
 
         // Regular update
         self.velocity += self.max_velocity.min(self.acceleration * dt);
@@ -122,7 +126,7 @@ impl Behavior for AirLike {
         AIR_LIKE_ID
     }
 
-    fn update(&mut self, _dt: f64, _grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
+    fn update(&mut self, _position: Position, _dt: f64, _grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
         vec![]
     }
 }

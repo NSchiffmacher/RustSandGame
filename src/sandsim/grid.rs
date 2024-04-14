@@ -147,7 +147,7 @@ impl Grid {
 
             while x >= 0 && x < self.width {
                 // Swaps are relative to the current cell
-                let modified = self.get((x, y)).update(dt, &mut cell_types, &mut cell_behaviors);
+                let modified = self.get((x, y)).update((x, y), dt, &mut cell_types, &mut cell_behaviors);
                 
                 if modified {
                     let new_position = self.get((x, y)).get_position();
