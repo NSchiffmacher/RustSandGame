@@ -8,11 +8,13 @@ use crate::sandsim::grid::Position;
 pub const SAND_CELL_COLOR: Color = Color { r: 246, g: 215, b: 176, a: 255 };
 pub const EMPTY_CELL_COLOR: Color = Color { r: 0, g: 0, b: 0, a: 255 };
 pub const WOOD_CELL_COLOR: Color = Color { r: 68, g: 48, b: 34, a: 255 };
+// pub const SMOKE_CELL_COLOR: Color = Color { r: 76, g: 74, b: 77, a: 255 };
 
 pub type ParticleId = u8;
 pub const EMPTY_ID: ParticleId = 0;
 pub const SAND_ID: ParticleId = 1;
 pub const WOOD_ID: ParticleId = 2;
+// pub const SMOKE_ID: ParticleId = 3;
 
 pub struct Particle {
     color: Color,
