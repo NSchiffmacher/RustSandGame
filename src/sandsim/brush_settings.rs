@@ -28,9 +28,9 @@ impl BrushSettings {
 
 pub fn make_default_brush_settings_map() -> HashMap<ParticleId, BrushSettings> {
     let mut brush_settings_map = HashMap::new();
-    brush_settings_map.insert(SAND_ID, BrushSettings::new(2, 0.5, BrushType::Circle, |_pos| Particle::new_sand()));
-    brush_settings_map.insert(WOOD_ID, BrushSettings::new(2, 0.99, BrushType::Circle, |_pos| Particle::new_wood()));
-    brush_settings_map.insert(EMPTY_ID, BrushSettings::new(2, 1., BrushType::Circle, |_pos| Particle::new_empty()));
+    brush_settings_map.insert(SAND_ID, BrushSettings::new(2, 0.5, BrushType::Circle, |position| Particle::new_sand(position)));
+    brush_settings_map.insert(WOOD_ID, BrushSettings::new(2, 0.99, BrushType::Circle, |position| Particle::new_wood(position)));
+    brush_settings_map.insert(EMPTY_ID, BrushSettings::new(2, 1., BrushType::Circle, |position| Particle::new_empty(position)));
 
     brush_settings_map
 }
