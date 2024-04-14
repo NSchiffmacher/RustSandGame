@@ -1,3 +1,4 @@
+use rand::Rng;
 use sdl2::pixels::Color;
 
 use crate::color;
@@ -24,6 +25,7 @@ pub struct Particle {
     position: Position,
 
     modified: bool,
+    required_actions: Vec<ParticleAction>,
 }
 
 impl Particle {
@@ -31,6 +33,7 @@ impl Particle {
         let mut actions = vec![];
         self.modified = false;
         self.position = position;
+        self.required_actions = vec![];
 
         for behavior in self.behaviors.iter_mut() {
             actions.extend(behavior.update(position, dt, grid, behaviors_grid));
@@ -51,9 +54,13 @@ impl Particle {
             // },
             ParticleAction::SetPosition { position } =>  {
                 self.position = *position;
-                self.modified = true;
             },
+            ParticleAction::KillParticle { position } => {
+                // Pass it to the grid
+                self.required_actions.push(ParticleAction::KillParticle { position: *position });
+            }
         }
+        self.modified = true;
     }
 
     pub fn get_color(&self) -> Color {
@@ -62,6 +69,10 @@ impl Particle {
 
     pub fn get_id(&self) -> ParticleId {
         self.particle_id
+    }
+
+    pub fn get_required_actions(&self) -> Vec<ParticleAction> {
+        self.required_actions.clone()
     }
 
     pub fn get_behaviors_ids(&self) -> BehaviorId {
@@ -86,6 +97,7 @@ impl Particle {
             modified: false,
             behaviors,
             behaviors_ids,
+            required_actions: vec![],
         }
     }
 
@@ -112,9 +124,11 @@ impl Particle {
     }
 
     pub fn new_smoke(position: Position) -> Self {
+        let lifetime = rand::thread_rng().gen_range(4.0..=7.5);
         let behaviors = vec![
             MoveDown::boxed(position, 0.05 * 60., -0.001 * 60. * 60.),
             AirLike::boxed(),
+            LimitedLife::boxed(lifetime),
         ];
         Self::new(position, color::vary_color(SMOKE_CELL_COLOR, 3), SMOKE_ID, behaviors)
     }

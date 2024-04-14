@@ -5,6 +5,7 @@ use std::collections::HashSet;
 
 use crate::sandsim::particle::*;
 use crate::sandsim::brush_settings::BrushSettings;
+use crate::sandsim::particle_action::ParticleAction;
 
 pub type Position = (i32, i32);
 pub const PIXEL_SIZE: i32 = 5;
@@ -150,6 +151,18 @@ impl Grid {
                 let modified = self.get((x, y)).update((x, y), dt, &mut cell_types, &mut cell_behaviors);
                 
                 if modified {
+                    // Handle particle actions
+                    let actions = self.get((x, y)).get_required_actions();
+                    for action in actions {
+                        match action {
+                            ParticleAction::KillParticle { position } => {
+                                self.set(position, Particle::new_empty(position));
+                            },
+                            _ => panic!("Action should be handled by the particle, not the grid"),
+                        }
+                    }
+
+                    // Update the position if needed
                     let new_position = self.get((x, y)).get_position();
                     if new_position != (x, y) {
                         self.swap((x, y), new_position);

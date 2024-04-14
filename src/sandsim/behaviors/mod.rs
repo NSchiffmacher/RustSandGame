@@ -7,12 +7,15 @@ pub type BehaviorId = u8;
 
 pub const MOVE_DOWN_ID: BehaviorId = 1 << 1;
 pub const AIR_LIKE_ID: BehaviorId = 1 << 2;
+pub const LIMITED_LIFE_ID: BehaviorId = 1 << 3;
 
 mod move_down;
 mod air_like;
+mod limited_life;
 
 pub use move_down::MoveDown;
 pub use air_like::AirLike;
+pub use limited_life::LimitedLife;
 
 
 pub trait Behavior {
