@@ -14,6 +14,7 @@ pub struct App {
     // height: i32,
     ui: Ui,
     
+    paused: bool,
     grid: Grid,
     brush_settings_map: HashMap<ParticleId, BrushSettings>,
     selected_brush: ParticleId,
@@ -31,6 +32,7 @@ impl App {
             // width,
             // height,
             ui,
+            paused: false,
 
             grid: Grid::new(width, height),
             brush_settings_map: make_default_brush_settings_map(),
@@ -49,7 +51,7 @@ impl App {
             self.draw();
 
             self.ui.finish_frame();
-            println!("FPS: {}", self.ui.fps);
+            // println!("FPS: {}", self.ui.fps);
         }
     }
     
@@ -79,7 +81,12 @@ impl App {
         }
 
         // Logic
-        self.grid.update(1. / 60.); //TODO Tmp, will need to update to actual dt
+        let dt = if self.paused {
+            0.
+        } else {
+            1. / 60. //TODO Tmp, will need to update to actual dt
+        };
+        self.grid.update(dt);
     }
 
     pub fn draw(&mut self) {
@@ -92,6 +99,7 @@ impl App {
             Event::KeyDown { keycode: Some(Keycode::Num2), .. } => { self.selected_brush = WOOD_ID; println!("Selected wood");  },
             Event::KeyDown { keycode: Some(Keycode::Num3), .. } => { self.selected_brush = SMOKE_ID; println!("Selected smoke"); },
             Event::KeyDown { keycode: Some(Keycode::Num4), .. } => { self.selected_brush = EMPTY_ID; println!("Selected empty"); },
+            Event::KeyDown { keycode: Some(Keycode::Space), repeat: false, .. } => { self.paused = !self.paused; println!("Pause: {}", self.paused); },
             _ => (),
         }
     }
