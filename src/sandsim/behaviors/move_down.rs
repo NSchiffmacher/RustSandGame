@@ -23,7 +23,11 @@ impl Behavior for MoveDown {
         }
 
         // Regular update
-        self.velocity += self.max_velocity.min(self.acceleration * dt);
+        let sign = self.acceleration.signum();
+        self.velocity += self.acceleration * dt;
+        if self.velocity.abs() > self.max_velocity {
+            self.velocity = self.max_velocity * sign;
+        }
         self.float_position.1 += self.velocity * dt;
 
         // Check if we changed grid cell 
@@ -39,7 +43,7 @@ impl Behavior for MoveDown {
         }
 
         // We are in bounds, find target empty cell
-        if let Some(dx) = self.find_empty_cell(new_position, &behaviors_grid) {
+        if let Some(dx) = self.find_empty_cell(position, new_position.1 - position.1, &grid, &behaviors_grid) {
             new_position.0 += dx;
             
             // Swap particle IDs
@@ -66,7 +70,7 @@ impl Behavior for MoveDown {
 impl MoveDown {
     pub fn boxed(position: Position, max_velocity: f64, acceleration: f64) -> Box<dyn Behavior> {
         let float_position = (position.0 as f64, position.1 as f64);
-        Box::new(MoveDown { float_position, integer_position: position, max_velocity, acceleration, velocity: 0.})
+        Box::new(MoveDown { float_position, integer_position: position, max_velocity: max_velocity.abs(), acceleration, velocity: 0.})
     }
 
     fn to_integer_position(&self) -> Position {
@@ -78,20 +82,22 @@ impl MoveDown {
         self.float_position.1 = self.integer_position.1 as f64;
     }
 
-    fn find_empty_cell(&self, (x, y): Position, grid: &Vec<Vec<BehaviorId>>) -> Option<i32> {
+    fn find_empty_cell(&self, (x, y): Position, dy: i32, grid: &Vec<Vec<ParticleId>>, behaviors_grid: &Vec<Vec<BehaviorId>>) -> Option<i32> {
+        let self_air_like = has_behavior((x, y), behaviors_grid, AIR_LIKE_ID);
+
         // Check (x, y) first 
-        if has_behavior((x, y), grid, AIR_LIKE_ID) {
+        if (!self_air_like && has_behavior((x, y + dy), behaviors_grid, AIR_LIKE_ID)) || (self_air_like && grid[(y + dy) as usize][x as usize] == EMPTY_ID) {
             return Some(0);
         }
 
         // Otherwise, check both side, first choosen randomly
         let dx = if rand::random::<f32>() < 0.5 { 1 } else { -1 };
-        let width = grid[0].len() as i32;
-        if x + dx >= 0 && x + dx < width && has_behavior((x + dx, y), grid, AIR_LIKE_ID) {
+        let width = behaviors_grid[0].len() as i32;
+        if x + dx >= 0 && x + dx < width && ((!self_air_like && has_behavior((x + dx, y + dy), behaviors_grid, AIR_LIKE_ID)) || (self_air_like && grid[(y + dy) as usize][(x + dx) as usize] == EMPTY_ID)) {
             return Some(dx);
         }
 
-        if x - dx >= 0 && x - dx < width && has_behavior((x - dx, y), grid, AIR_LIKE_ID){
+        if x - dx >= 0 && x - dx < width && ((!self_air_like && has_behavior((x + dx, y + dy), behaviors_grid, AIR_LIKE_ID)) || (self_air_like && grid[(y + dy) as usize][(x + dx) as usize] == EMPTY_ID)) {
             return Some(-dx);
         }
 

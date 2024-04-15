@@ -127,7 +127,7 @@ impl Particle {
         let lifetime = rand::thread_rng().gen_range(4.0..=7.5);
 
         let behaviors = vec![
-            MoveDown::boxed(position, 0.05 * 60., -0.001 * 60. * 60.),
+            MoveDown::boxed(position, 0.5 * 60., -0.003 * 60. * 60.),
             AirLike::boxed(),
             LimitedLife::boxed(lifetime, color, Color::RGBA(0, 0, 0, 255)),
         ];
