@@ -132,13 +132,12 @@ impl Particle {
     }
 
     pub fn new_smoke(position: Position) -> Self {
-        let color = color::vary_color(SMOKE_CELL_COLOR, 3);
         let lifetime = rand::thread_rng().gen_range(4.0..=7.5);
 
         let behaviors = vec![
             MoveDown::boxed(position, 0.5 * 60., -0.003 * 60. * 60.),
             AirLike::boxed(),
-            LimitedLife::boxed(lifetime, color, Color::RGBA(0, 0, 0, 255)),
+            LimitedLife::boxed(lifetime),
         ];
         Self::new(position, color::vary_color(SMOKE_CELL_COLOR, 3), SMOKE_ID, behaviors)
     }
@@ -148,6 +147,7 @@ impl Particle {
         let lifetime = rng.gen_range(1.0..=3.0);
         let frequency = rng.gen_range(5.0..=10.);
         let behaviors = vec![
+            LimitedLife::boxed(lifetime),
             AnimatedColor::boxed(vec![
                 color::vary_color(Color::RGBA(84, 30, 30, 255), 10),
                 color::vary_color(Color::RGBA(255, 31, 31, 255), 10),
@@ -156,7 +156,6 @@ impl Particle {
                 color::vary_color(Color::RGBA(238, 204, 9, 255), 10),
             ], frequency),
             AirLike::boxed(),
-            LimitedLife::boxed(lifetime, Color::RGBA(255, 255, 255, 255), Color::RGBA(0, 0, 0, 255)),
         ];
         Self::new(position, Color::YELLOW, FIRE_ID, behaviors)
     }
