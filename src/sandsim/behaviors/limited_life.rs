@@ -14,14 +14,14 @@ impl Behavior for LimitedLife {
         LIMITED_LIFE_ID
     }
 
-    fn update(&mut self, position: Position, dt: f64, _grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
+    fn update(&mut self, state: &ParticleState, dt: f64, _grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
         self.elapsed_time = self.lifetime.min(self.elapsed_time + dt);
         
         let prc = self.elapsed_time / self.lifetime;
         let mut actions = vec![ParticleAction::SetColor { color: color_interpo(self.initial_color, self.target_color, prc)}];
 
         if self.elapsed_time >= self.lifetime {
-            actions.push(ParticleAction::KillParticle { position });
+            actions.push(ParticleAction::KillParticle { position: state.position });
         } 
 
         actions
@@ -30,7 +30,7 @@ impl Behavior for LimitedLife {
 
 impl LimitedLife {
     pub fn boxed(lifetime: f64, initial_color: Color, target_color: Color) -> Box<dyn Behavior> {
-        Box::new(LimitedLife {
+        Box::new(Self {
             elapsed_time: 0.,
             initial_color, 
             target_color,

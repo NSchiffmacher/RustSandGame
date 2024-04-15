@@ -16,28 +16,34 @@ pub const EMPTY_ID: ParticleId = 0;
 pub const SAND_ID: ParticleId = 1;
 pub const WOOD_ID: ParticleId = 2;
 pub const SMOKE_ID: ParticleId = 3;
-pub const FIRE_ID: ParticleId = 3;
+pub const FIRE_ID: ParticleId = 4;
 
 pub struct Particle {
-    color: Color,
-    particle_id: ParticleId,
-    behaviors_ids: BehaviorId,
+    state: ParticleState,
     behaviors: Vec<Box<dyn Behavior>>,
-    position: Position,
 
     modified: bool,
     required_actions: Vec<ParticleAction>,
+}
+
+#[derive(Clone)]
+pub struct ParticleState {
+    pub color: Color,
+    pub position: Position,
+    
+    pub particle_id: ParticleId,
+    pub behaviors_ids: BehaviorId,
 }
 
 impl Particle {
     pub fn update(&mut self, position: Position, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> bool { 
         let mut actions = vec![];
         self.modified = false;
-        self.position = position;
+        self.state.position = position;
         self.required_actions = vec![];
 
         for behavior in self.behaviors.iter_mut() {
-            actions.extend(behavior.update(position, dt, grid, behaviors_grid));
+            actions.extend(behavior.update(&self.state, dt, grid, behaviors_grid));
         }
 
         for action in &actions {
@@ -50,25 +56,25 @@ impl Particle {
     pub fn handle_action(&mut self, action: &ParticleAction) {
         match action {
             ParticleAction::SetPosition { position } =>  {
-                self.position = *position;
+                self.state.position = *position;
             },
             ParticleAction::KillParticle { position } => {
                 // Pass it to the grid
                 self.required_actions.push(ParticleAction::KillParticle { position: *position });
             },
             ParticleAction::SetColor { color } => {
-                self.color = *color;
+                self.state.color = *color;
             },
         }
         self.modified = true;
     }
 
     pub fn get_color(&self) -> Color {
-        self.color
+        self.state.color
     }
 
     pub fn get_id(&self) -> ParticleId {
-        self.particle_id
+        self.state.particle_id
     }
 
     pub fn get_required_actions(&self) -> Vec<ParticleAction> {
@@ -76,11 +82,11 @@ impl Particle {
     }
 
     pub fn get_behaviors_ids(&self) -> BehaviorId {
-        self.behaviors_ids
+        self.state.behaviors_ids
     }
 
     pub fn get_position(&self) -> Position {
-        self.position
+        self.state.position
     }
 
     pub fn new(position: Position, color: Color, particle_id: ParticleId, behaviors: Vec<Box<dyn Behavior>>) -> Self {
@@ -91,12 +97,14 @@ impl Particle {
         }
         
         Self {
-            color,
-            position,
-            particle_id,
+            state: ParticleState {
+                color,
+                position,
+                particle_id,
+                behaviors_ids,
+            },
             modified: false,
             behaviors,
-            behaviors_ids,
             required_actions: vec![],
         }
     }
@@ -136,13 +144,19 @@ impl Particle {
     }
 
     pub fn new_fire(position: Position) -> Self {
-        // let animated_color = color::AnimatedColor::new(vec![
-        //     color::vary_color(Color::RGBA(255, 0, 0, 255), 10),
-        //     color::vary_color(Color::RGBA(255, 255, 0, 255), 10),
-        //     color::vary_color(Color::RGBA(255, 255, 255, 255), 10),
-        // ], 0.1);
+        let mut rng = rand::thread_rng();
+        let lifetime = rng.gen_range(1.0..=3.0);
+        let frequency = rng.gen_range(5.0..=10.);
         let behaviors = vec![
-            
+            AnimatedColor::boxed(vec![
+                color::vary_color(Color::RGBA(84, 30, 30, 255), 10),
+                color::vary_color(Color::RGBA(255, 31, 31, 255), 10),
+                color::vary_color(Color::RGBA(234, 90, 0, 255), 10),
+                color::vary_color(Color::RGBA(255, 105, 0, 255), 10),
+                color::vary_color(Color::RGBA(238, 204, 9, 255), 10),
+            ], frequency),
+            AirLike::boxed(),
+            LimitedLife::boxed(lifetime, Color::RGBA(255, 255, 255, 255), Color::RGBA(0, 0, 0, 255)),
         ];
         Self::new(position, Color::YELLOW, FIRE_ID, behaviors)
     }

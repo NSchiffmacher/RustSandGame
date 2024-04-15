@@ -8,6 +8,7 @@ pub type BehaviorId = u8;
 pub const MOVE_DOWN_ID: BehaviorId = 1 << 1;
 pub const AIR_LIKE_ID: BehaviorId = 1 << 2;
 pub const LIMITED_LIFE_ID: BehaviorId = 1 << 3;
+pub const ANIMATED_COLOR_ID: BehaviorId = 1 << 4;
 
 mod move_down;
 mod air_like;
@@ -17,11 +18,11 @@ mod animated_color;
 pub use move_down::MoveDown;
 pub use air_like::AirLike;
 pub use limited_life::LimitedLife;
-// pub use animated_color::AnimatedColor;
+pub use animated_color::AnimatedColor;
 
 
 pub trait Behavior {
-    fn update(&mut self, position: Position, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction>;
+    fn update(&mut self, state: &ParticleState, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction>;
     fn get_id(&self) -> BehaviorId;
 }
 

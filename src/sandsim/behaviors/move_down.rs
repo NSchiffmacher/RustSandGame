@@ -14,10 +14,10 @@ impl Behavior for MoveDown {
         MOVE_DOWN_ID
     }
 
-    fn update(&mut self, position: Position, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
+    fn update(&mut self, state: &ParticleState, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
         // Check if we have changed position between two frames
-        if self.integer_position != position {
-            self.integer_position = position;
+        if self.integer_position != state.position {
+            self.integer_position = state.position;
             // self.stop_motion();
             // Should return there ?
         }
@@ -43,7 +43,7 @@ impl Behavior for MoveDown {
         }
 
         // We are in bounds, find target empty cell
-        if let Some(dx) = self.find_empty_cell(position, new_position.1 - position.1, &grid, &behaviors_grid) {
+        if let Some(dx) = self.find_empty_cell(state.position, new_position.1 - state.position.1, &grid, &behaviors_grid) {
             new_position.0 += dx;
             
             // Swap particle IDs
@@ -70,7 +70,7 @@ impl Behavior for MoveDown {
 impl MoveDown {
     pub fn boxed(position: Position, max_velocity: f64, acceleration: f64) -> Box<dyn Behavior> {
         let float_position = (position.0 as f64, position.1 as f64);
-        Box::new(MoveDown { float_position, integer_position: position, max_velocity: max_velocity.abs(), acceleration, velocity: 0.})
+        Box::new(Self { float_position, integer_position: position, max_velocity: max_velocity.abs(), acceleration, velocity: 0.})
     }
 
     fn to_integer_position(&self) -> Position {
