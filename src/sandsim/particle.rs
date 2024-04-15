@@ -16,6 +16,7 @@ pub const EMPTY_ID: ParticleId = 0;
 pub const SAND_ID: ParticleId = 1;
 pub const WOOD_ID: ParticleId = 2;
 pub const SMOKE_ID: ParticleId = 3;
+pub const FIRE_ID: ParticleId = 3;
 
 pub struct Particle {
     color: Color,
@@ -132,5 +133,17 @@ impl Particle {
             LimitedLife::boxed(lifetime, color, Color::RGBA(0, 0, 0, 255)),
         ];
         Self::new(position, color::vary_color(SMOKE_CELL_COLOR, 3), SMOKE_ID, behaviors)
+    }
+
+    pub fn new_fire(position: Position) -> Self {
+        // let animated_color = color::AnimatedColor::new(vec![
+        //     color::vary_color(Color::RGBA(255, 0, 0, 255), 10),
+        //     color::vary_color(Color::RGBA(255, 255, 0, 255), 10),
+        //     color::vary_color(Color::RGBA(255, 255, 255, 255), 10),
+        // ], 0.1);
+        let behaviors = vec![
+            
+        ];
+        Self::new(position, Color::YELLOW, FIRE_ID, behaviors)
     }
 }

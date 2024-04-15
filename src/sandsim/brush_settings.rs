@@ -32,6 +32,7 @@ pub fn make_default_brush_settings_map() -> HashMap<ParticleId, BrushSettings> {
     brush_settings_map.insert(WOOD_ID, BrushSettings::new(2, 0.99, BrushType::Circle, |position| Particle::new_wood(position)));
     brush_settings_map.insert(EMPTY_ID, BrushSettings::new(2, 1., BrushType::Circle, |position| Particle::new_empty(position)));
     brush_settings_map.insert(SMOKE_ID, BrushSettings::new(2, 0.2, BrushType::Circle, |position| Particle::new_smoke(position)));
+    brush_settings_map.insert(FIRE_ID, BrushSettings::new(3, 0.01, BrushType::Circle, |position| Particle::new_fire(position)));
 
     brush_settings_map
 }
