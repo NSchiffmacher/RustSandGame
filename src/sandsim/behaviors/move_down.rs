@@ -97,7 +97,7 @@ impl MoveDown {
             return Some(dx);
         }
 
-        if x - dx >= 0 && x - dx < width && ((!self_air_like && has_behavior((x + dx, y + dy), behaviors_grid, AIR_LIKE_ID)) || (self_air_like && grid[(y + dy) as usize][(x + dx) as usize] == EMPTY_ID)) {
+        if x - dx >= 0 && x - dx < width && ((!self_air_like && has_behavior((x - dx, y + dy), behaviors_grid, AIR_LIKE_ID)) || (self_air_like && grid[(y + dy) as usize][(x - dx) as usize] == EMPTY_ID)) {
             return Some(-dx);
         }
 
