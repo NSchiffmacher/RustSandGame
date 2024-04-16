@@ -1,5 +1,3 @@
-use sdl2::pixels::Color;
-
 use crate::sandsim::behaviors::*;
 use crate::color::darken_color;
 
@@ -10,10 +8,6 @@ pub struct LimitedLife {
 }
 
 impl Behavior for LimitedLife {
-    fn get_id(&self) -> BehaviorId {
-        LIMITED_LIFE_ID
-    }
-
     fn update(&mut self, state: &ParticleState, dt: f64, _grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
         self.elapsed_time = self.lifetime.min(self.elapsed_time + dt);
         
@@ -28,6 +22,10 @@ impl Behavior for LimitedLife {
         } 
 
         actions
+    }
+
+    fn get_id(&self) -> BehaviorId {
+        LIMITED_LIFE_ID
     }
 }
 

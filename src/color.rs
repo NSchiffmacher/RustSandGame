@@ -30,7 +30,8 @@ pub fn darken_color(color: Color, lightness: f32) -> Color {
     Color::RGB(new_rgb.get_red() as u8, new_rgb.get_green() as u8, new_rgb.get_blue() as u8)
 }
 
-pub fn color_interpo(a: Color, b: Color, t: f64) -> Color {
+#[allow(dead_code)]
+pub fn color_interpolation(a: Color, b: Color, t: f64) -> Color {
     Color {
         r: (a.r as f64 + (b.r as f64 - a.r as f64) * t).floor() as u8,
         g: (a.g as f64 + (b.g as f64 - a.g as f64) * t).floor() as u8,
