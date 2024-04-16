@@ -74,7 +74,7 @@ impl Grid {
                     let new_y = y + j;
                     if new_x >= 0 && new_x < self.width && new_y >= 0 && new_y < self.height && rand::random::<f32>() < brush_settings.probability {
                         let particle = (brush_settings.callback)((new_x, new_y));
-                        if particle.get_id() == EMPTY_ID || self.get((new_x, new_y)).get_id() == EMPTY_ID {
+                        if particle.get_id() == EMPTY_ID || self.get_particle_id((x, y)) == EMPTY_ID {
                             self.set((new_x, new_y), particle);
                         }
                     }
@@ -83,13 +83,17 @@ impl Grid {
         }
     }
 
-    pub fn get(&mut self, (x, y): Position) -> &mut Particle {
+    pub fn get_mut(&mut self, (x, y): Position) -> &mut Particle {
         &mut self.cells[y as usize][x as usize]
     }
 
-    // pub fn get_type(&self, (x, y): Position) -> ParticleId {
-    //     self.cell_types[y as usize][x as usize]
-    // }
+    pub fn get(&self, (x, y): Position) -> &Particle {
+        &self.cells[y as usize][x as usize]
+    }
+
+    pub fn get_particle_id(&self, (x, y): Position) -> ParticleId {
+        self.get((x, y)).get_id()
+    }
 
     pub fn swap(&mut self, (mut x1, mut y1): Position, (mut x2, mut y2): Position) {
         if self.is_empty((x1, y1)) && self.is_empty((x2, y2)) { return; }
@@ -117,8 +121,8 @@ impl Grid {
         self.cells_to_draw.insert((x2, y2));
     }
 
-    pub fn is_empty(&mut self, (x, y): Position) -> bool {
-        self.get((x, y)).get_id() == EMPTY_ID
+    pub fn is_empty(&self, (x, y): Position) -> bool {
+        self.get_particle_id((x, y)) == EMPTY_ID
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas<Window>) {
@@ -148,7 +152,7 @@ impl Grid {
 
             while x >= 0 && x < self.width {
                 // Swaps are relative to the current cell
-                let modified = self.get((x, y)).update((x, y), dt, &mut cell_types, &mut cell_behaviors);
+                let modified = self.get_mut((x, y)).update((x, y), dt, &mut cell_types, &mut cell_behaviors);
                 
                 if modified {
                     // Handle particle actions
@@ -159,7 +163,7 @@ impl Grid {
                                 self.set(position, Particle::new_empty(position));
                             },
                             ParticleAction::SpawnParticle { position, callback} => {
-                                if self.get(position).get_id() == EMPTY_ID {
+                                if self.get_particle_id(position) == EMPTY_ID {
                                     self.set(position, callback(position));
                                 }
                             }
@@ -182,17 +186,17 @@ impl Grid {
         }
     }
 
-    fn build_cell_types(&mut self) -> Vec<Vec<ParticleId>> {
+    fn build_cell_types(&self) -> Vec<Vec<ParticleId>> {
         let mut res = vec![vec![EMPTY_ID; self.width as usize]; self.height as usize];
         for y in 0..self.height {
             for x in 0..self.width {
-                res[y as usize][x as usize] = self.get((x, y)).get_id();
+                res[y as usize][x as usize] = self.get_particle_id((x, y));
             }
         }
         res
     }
 
-    fn build_cell_behaviors(&mut self) -> Vec<Vec<ParticleId>> {
+    fn build_cell_behaviors(&self) -> Vec<Vec<ParticleId>> {
         let mut res = vec![vec![0; self.width as usize]; self.height as usize];
         for y in 0..self.height {
             for x in 0..self.width {
