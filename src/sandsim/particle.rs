@@ -58,13 +58,17 @@ impl Particle {
             ParticleAction::SetPosition { position } =>  {
                 self.state.position = *position;
             },
-            ParticleAction::KillParticle { position } => {
+            ParticleAction::KillParticle { .. } => {
                 // Pass it to the grid
-                self.required_actions.push(ParticleAction::KillParticle { position: *position });
+                self.required_actions.push(action.clone());
             },
             ParticleAction::SetColor { color } => {
                 self.state.color = *color;
             },
+            ParticleAction::SpawnParticle { .. } => {
+                // Pass it to the grid
+                self.required_actions.push(action.clone());
+            }
         }
         self.modified = true;
     }
@@ -147,7 +151,11 @@ impl Particle {
         let lifetime = rng.gen_range(1.0..=3.0);
         let frequency = rng.gen_range(5.0..=10.);
         let behaviors = vec![
-            LimitedLife::boxed(lifetime),
+            LimitedLife::boxed_with_spawn(
+                lifetime,
+                0.85,
+                |pos| Self::new_smoke(pos),
+                (1, 1)),
             AnimatedColor::boxed(vec![
                 color::vary_color(Color::RGBA(84, 30, 30, 255), 10),
                 color::vary_color(Color::RGBA(255, 31, 31, 255), 10),

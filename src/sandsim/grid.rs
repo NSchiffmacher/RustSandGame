@@ -158,6 +158,11 @@ impl Grid {
                             ParticleAction::KillParticle { position } => {
                                 self.set(position, Particle::new_empty(position));
                             },
+                            ParticleAction::SpawnParticle { position, callback} => {
+                                if self.get(position).get_id() == EMPTY_ID {
+                                    self.set(position, callback(position));
+                                }
+                            }
                             _ => panic!("Action should be handled by the particle, not the grid"),
                         }
                     }
