@@ -72,9 +72,10 @@ impl Grid {
                 if i * i + j * j <= brush_settings.size * brush_settings.size {
                     let new_x = x + i;
                     let new_y = y + j;
-                    if new_x >= 0 && new_x < self.width && new_y >= 0 && new_y < self.height && rand::random::<f32>() < brush_settings.probability {
+                    let spawn = rand::random::<f32>() < brush_settings.probability;
+                    if spawn && new_x >= 0 && new_x < self.width && new_y >= 0 && new_y < self.height {
                         let particle = (brush_settings.callback)((new_x, new_y));
-                        if particle.get_id() == EMPTY_ID || self.get_particle_id((x, y)) == EMPTY_ID {
+                        if particle.get_id() == EMPTY_ID || self.get_particle_id((new_x, new_y)) == EMPTY_ID {
                             self.set((new_x, new_y), particle);
                         }
                     }
