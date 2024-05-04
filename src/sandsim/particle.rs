@@ -133,7 +133,7 @@ impl Particle {
             color::vary_color(WOOD_CELL_COLOR, 10),
             WOOD_ID,
             vec![
-                Flammable::boxed(0.008, 3),
+                Flammable::boxed(0.08, 3),
             ])
     }
 
@@ -165,6 +165,7 @@ impl Particle {
                 color::vary_color(Color::RGBA(255, 105, 0, 255), 10),
                 color::vary_color(Color::RGBA(238, 204, 9, 255), 10),
             ], frequency),
+            DieWhenCrushed::boxed(0.5),
         ];
         Self::new(position, Color::YELLOW, FIRE_ID, behaviors)
     }
