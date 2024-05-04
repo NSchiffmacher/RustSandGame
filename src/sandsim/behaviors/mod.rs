@@ -9,16 +9,19 @@ pub const MOVE_DOWN_ID: BehaviorId = 1 << 1;
 pub const AIR_LIKE_ID: BehaviorId = 1 << 2;
 pub const LIMITED_LIFE_ID: BehaviorId = 1 << 3;
 pub const ANIMATED_COLOR_ID: BehaviorId = 1 << 4;
+pub const FLAMMABLE_ID: BehaviorId = 1 << 5;
 
 mod move_down;
 mod air_like;
 mod limited_life;
 mod animated_color;
+mod flammable;
 
 pub use move_down::MoveDown;
 pub use air_like::AirLike;
 pub use limited_life::LimitedLife;
 pub use animated_color::AnimatedColor;
+pub use flammable::Flammable;
 
 
 pub trait Behavior {

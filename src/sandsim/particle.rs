@@ -132,7 +132,9 @@ impl Particle {
             position,
             color::vary_color(WOOD_CELL_COLOR, 10),
             WOOD_ID,
-            vec![])
+            vec![
+                Flammable::boxed(0.008, 3),
+            ])
     }
 
     pub fn new_smoke(position: Position) -> Self {
