@@ -165,7 +165,6 @@ impl Particle {
                 color::vary_color(Color::RGBA(255, 105, 0, 255), 10),
                 color::vary_color(Color::RGBA(238, 204, 9, 255), 10),
             ], frequency),
-            AirLike::boxed(),
         ];
         Self::new(position, Color::YELLOW, FIRE_ID, behaviors)
     }
