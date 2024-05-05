@@ -13,7 +13,7 @@ impl Behavior for Flammable {
         FLAMMABLE_ID
     }
 
-    fn update(&mut self, state: &ParticleState, dt: f64, grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
+    fn update(&mut self, state: &ParticleState, dt: f64, _grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
         // Increase ignite probability based on the number of FIRE_ID in the given radius
         let mut any_fire_in_area = false;
         for i in -self.ignition_radius..=self.ignition_radius {
@@ -23,7 +23,7 @@ impl Behavior for Flammable {
                 }
                 // Check if there is a FIRE_ID in the given radius
                 // If there is, increase the current_ignition_probability
-                if grid[(state.position.1 + j) as usize][(state.position.0 + i) as usize] == FIRE_ID {
+                if has_behavior((state.position.0 + i, state.position.1 + j), behaviors_grid, IGNITER_ID) {
                     self.current_ignition_probability += self.ignition_rate * dt / self.num_cell_in_radius;
                     any_fire_in_area = true;
                 }
