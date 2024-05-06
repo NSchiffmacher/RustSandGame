@@ -13,6 +13,7 @@ pub const FLAMMABLE_ID: BehaviorId = 1 << 5;
 pub const DIE_WHEN_CRUSHED_ID: BehaviorId = 1 << 6;
 pub const IGNITER_ID: BehaviorId = 1 << 7;
 pub const SIDEWAY_MOTION_FALLBACK: BehaviorId = 1 << 8;
+pub const CURRENT_MOTION_ID: BehaviorId = 1 << 9;
 
 mod move_down;
 mod air_like;
@@ -22,6 +23,7 @@ mod flammable;
 mod die_when_crushed;
 mod igniter;
 mod sideways_motion_fallback;
+mod current_motion;
 
 pub use move_down::MoveDown;
 pub use air_like::AirLike;
@@ -31,6 +33,7 @@ pub use flammable::Flammable;
 pub use die_when_crushed::DieWhenCrushed;
 pub use igniter::Igniter;
 pub use sideways_motion_fallback::SidewaysMotionFallback;
+pub use current_motion::CurrentMotion;
 
 
 pub trait Behavior {

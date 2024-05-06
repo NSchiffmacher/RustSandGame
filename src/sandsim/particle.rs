@@ -177,6 +177,7 @@ impl Particle {
         let behaviors = vec![
             MoveDown::boxed(position, 8.0 * 60., 0.1 * 60. * 60.),
             SidewaysMotionFallback::boxed(&position),
+            CurrentMotion::boxed(0.25),
         ];
         Self::new(position, color::vary_color(WATER_CELL_COLOR, 3), WATER_ID, behaviors)
     }
