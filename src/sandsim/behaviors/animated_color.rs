@@ -15,7 +15,7 @@ impl Behavior for AnimatedColor {
         ANIMATED_COLOR_ID
     }
 
-    fn update(&mut self, _state: &ParticleState, dt: f64, _grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
+    fn update(&mut self, _state: &mut ParticleState, dt: f64, _grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
         self.elapsed_time += dt;
         let mut index = (self.elapsed_time * self.frequency).floor() as usize;
         if index >= self.colors.len() {

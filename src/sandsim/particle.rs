@@ -10,6 +10,7 @@ pub const SAND_CELL_COLOR: Color = Color { r: 246, g: 215, b: 176, a: 255 };
 pub const EMPTY_CELL_COLOR: Color = Color { r: 0, g: 0, b: 0, a: 255 };
 pub const WOOD_CELL_COLOR: Color = Color { r: 68, g: 48, b: 34, a: 255 };
 pub const SMOKE_CELL_COLOR: Color = Color { r: 76, g: 74, b: 77, a: 255 };
+pub const WATER_CELL_COLOR: Color = Color { r: 30, g: 120, b: 190, a: 255 };
 
 pub type ParticleId = u8;
 pub const EMPTY_ID: ParticleId = 0;
@@ -17,6 +18,7 @@ pub const SAND_ID: ParticleId = 1;
 pub const WOOD_ID: ParticleId = 2;
 pub const SMOKE_ID: ParticleId = 3;
 pub const FIRE_ID: ParticleId = 4;
+pub const WATER_ID: ParticleId = 5;
 
 pub struct Particle {
     state: ParticleState,
@@ -43,7 +45,7 @@ impl Particle {
         self.required_actions = vec![];
 
         for behavior in self.behaviors.iter_mut() {
-            actions.extend(behavior.update(&self.state, dt, grid, behaviors_grid));
+            actions.extend(behavior.update(&mut self.state, dt, grid, behaviors_grid));
         }
 
         for action in &actions {
@@ -169,5 +171,13 @@ impl Particle {
             Igniter::boxed(),
         ];
         Self::new(position, Color::YELLOW, FIRE_ID, behaviors)
+    }
+
+    pub fn new_water(position: Position) -> Self {
+        let behaviors = vec![
+            MoveDown::boxed(position, 8.0 * 60., 0.1 * 60. * 60.),
+            SidewaysMotionFallback::boxed(&position),
+        ];
+        Self::new(position, color::vary_color(WATER_CELL_COLOR, 3), WATER_ID, behaviors)
     }
 }

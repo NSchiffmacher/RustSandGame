@@ -9,7 +9,7 @@ impl Behavior for DieWhenCrushed {
         DIE_WHEN_CRUSHED_ID
     }
 
-    fn update(&mut self, state: &ParticleState, _dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
+    fn update(&mut self, state: &mut ParticleState, _dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
         // If the material on top of it is not AirLike, and the probability is met, kill the particle
         let above_x = state.position.0;
         let above_y = state.position.1 - 1;

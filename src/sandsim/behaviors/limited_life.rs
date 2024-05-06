@@ -12,7 +12,7 @@ pub struct LimitedLife {
 }
 
 impl Behavior for LimitedLife {
-    fn update(&mut self, state: &ParticleState, dt: f64, grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
+    fn update(&mut self, state: &mut ParticleState, dt: f64, grid: &mut Vec<Vec<ParticleId>>, _behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
         self.elapsed_time = self.lifetime.min(self.elapsed_time + dt);
 
         let t = (self.elapsed_time / self.lifetime) as f32; // t = 0 => start, t = 1 => end

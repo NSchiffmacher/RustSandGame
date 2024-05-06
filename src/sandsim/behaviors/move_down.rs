@@ -14,7 +14,7 @@ impl Behavior for MoveDown {
         MOVE_DOWN_ID
     }
 
-    fn update(&mut self, state: &ParticleState, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
+    fn update(&mut self, state: &mut ParticleState, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> Vec<ParticleAction> {
         // Check if we have changed position between two frames
         if self.integer_position != state.position {
             self.integer_position = state.position;
@@ -52,12 +52,13 @@ impl Behavior for MoveDown {
 
             // Swap behaviors IDs
             let tmp = behaviors_grid[new_position.1 as usize][new_position.0 as usize];
-            behaviors_grid[new_position.1 as usize][new_position.0 as usize] = grid[self.integer_position.1 as usize][self.integer_position.0 as usize];
+            behaviors_grid[new_position.1 as usize][new_position.0 as usize] = behaviors_grid[self.integer_position.1 as usize][self.integer_position.0 as usize];
             behaviors_grid[self.integer_position.1 as usize][self.integer_position.0 as usize] = tmp;
             
             self.integer_position = new_position;
             self.float_position.0 += dx as f64;
 
+            state.position = new_position;
             vec![ParticleAction::SetPosition { position: new_position }]
         } else {
             // No available cell, stop
