@@ -6,6 +6,7 @@ use std::collections::HashSet;
 use crate::sandsim::particle::*;
 use crate::sandsim::brush_settings::BrushSettings;
 use crate::sandsim::particle_action::ParticleAction;
+use crate::sandsim::behaviors::BehaviorId;
 
 pub type Position = (i32, i32);
 pub const PIXEL_SIZE: i32 = 5;
@@ -197,7 +198,7 @@ impl Grid {
         res
     }
 
-    fn build_cell_behaviors(&self) -> Vec<Vec<ParticleId>> {
+    fn build_cell_behaviors(&self) -> Vec<Vec<BehaviorId>> {
         let mut res = vec![vec![0; self.width as usize]; self.height as usize];
         for y in 0..self.height {
             for x in 0..self.width {

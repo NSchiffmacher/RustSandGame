@@ -5,7 +5,7 @@ pub struct MoveDown {
     max_velocity: f64,
     velocity: f64,
 
-    float_position: FloatPosition,
+    float_y: f64,
     integer_position: Position,
 }
 
@@ -28,7 +28,7 @@ impl Behavior for MoveDown {
         if self.velocity.abs() > self.max_velocity {
             self.velocity = self.max_velocity * sign;
         }
-        self.float_position.1 += self.velocity * dt;
+        self.float_y += self.velocity * dt;
 
         // Check if we changed grid cell 
         let mut new_position = self.to_integer_position();
@@ -56,7 +56,6 @@ impl Behavior for MoveDown {
             behaviors_grid[self.integer_position.1 as usize][self.integer_position.0 as usize] = tmp;
             
             self.integer_position = new_position;
-            self.float_position.0 += dx as f64;
 
             state.position = new_position;
             vec![ParticleAction::SetPosition { position: new_position }]
@@ -70,17 +69,16 @@ impl Behavior for MoveDown {
 
 impl MoveDown {
     pub fn boxed(position: Position, max_velocity: f64, acceleration: f64) -> Box<dyn Behavior> {
-        let float_position = (position.0 as f64, position.1 as f64);
-        Box::new(Self { float_position, integer_position: position, max_velocity: max_velocity.abs(), acceleration, velocity: 0.})
+        Box::new(Self { float_y: position.1 as f64, integer_position: position, max_velocity: max_velocity.abs(), acceleration, velocity: 0.})
     }
 
     fn to_integer_position(&self) -> Position {
-        (self.float_position.0.round() as i32, self.float_position.1.round() as i32)
+        (self.integer_position.0, self.float_y.round() as i32)
     }
 
     fn stop_motion(&mut self) {
         self.velocity = 0.;
-        self.float_position.1 = self.integer_position.1 as f64;
+        self.float_y = self.integer_position.1 as f64;
     }
 
     fn find_empty_cell(&self, (x, y): Position, dy: i32, grid: &Vec<Vec<ParticleId>>, behaviors_grid: &Vec<Vec<BehaviorId>>) -> Option<i32> {

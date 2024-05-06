@@ -99,7 +99,8 @@ impl App {
             Event::KeyDown { keycode: Some(Keycode::Num2), .. } => { self.selected_brush = WOOD_ID; println!("Selected wood");  },
             Event::KeyDown { keycode: Some(Keycode::Num3), .. } => { self.selected_brush = SMOKE_ID; println!("Selected smoke"); },
             Event::KeyDown { keycode: Some(Keycode::Num4), .. } => { self.selected_brush = FIRE_ID; println!("Selected fire"); },
-            Event::KeyDown { keycode: Some(Keycode::Num5), .. } => { self.selected_brush = EMPTY_ID; println!("Selected eraser"); },
+            Event::KeyDown { keycode: Some(Keycode::Num5), .. } => { self.selected_brush = WATER_ID; println!("Selected water"); },
+            Event::KeyDown { keycode: Some(Keycode::Num0), .. } => { self.selected_brush = EMPTY_ID; println!("Selected eraser"); },
             Event::KeyDown { keycode: Some(Keycode::Space), repeat: false, .. } => { self.paused = !self.paused; println!("Pause: {}", self.paused); },
             _ => (),
         }

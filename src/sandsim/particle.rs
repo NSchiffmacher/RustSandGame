@@ -41,7 +41,7 @@ impl Particle {
     pub fn update(&mut self, position: Position, dt: f64, grid: &mut Vec<Vec<ParticleId>>, behaviors_grid: &mut Vec<Vec<BehaviorId>>) -> bool { 
         let mut actions = vec![];
         self.modified = false;
-        self.state.position = position;
+        self.state.position = position; // Reset position to the new one, in case it was changed my another behavior
         self.required_actions = vec![];
 
         for behavior in self.behaviors.iter_mut() {
